@@ -1,413 +1,132 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Fallout 3 Terminal Hack - Symulacja</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-<style>
-  /* Reset i podstawy */
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    margin:0; padding:1rem;
-    background: #000;
-    color: #0f0;
-    font-family: 'Share Tech Mono', monospace;
-    user-select: none;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  h1 {
-    text-align: center;
-    margin-bottom: 1rem;
-    letter-spacing: 0.1em;
-  }
-
-  /* Terminal-style container */
-  #terminal {
-    background: radial-gradient(ellipse at center, #022200 0%, #000000 80%);
-    border: 2px solid #0f0;
-    padding: 1rem;
-    max-width: 600px;
-    margin: 0 auto 1rem auto;
-    box-shadow:
-      0 0 15px #0f0,
-      inset 0 0 10px #0f0;
-    border-radius: 4px;
-  }
-
-  /* Siatka słów */
-  #wordGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(90px,1fr));
-    gap: 0.3rem;
-  }
-  .word {
-    cursor: pointer;
-    background: linear-gradient(90deg, #003300 0%, #004400 100%);
-    padding: 0.3rem 0.15rem;
-    border-radius: 2px;
-    text-align: center;
-    font-size: 1.4rem;
-    letter-spacing: 0; /* ściśnięte litery */
-    color: #0f0;
-    user-select: none;
-    transition:
-      background 0.3s,
-      box-shadow 0.3s;
-    box-shadow:
-      0 0 6px #004400;
-  }
-  .word:hover {
-    background: linear-gradient(90deg, #007700 0%, #00aa00 100%);
-    box-shadow: 0 0 10px #0f0;
-  }
-  .word.disabled {
-    color: #044404aa;
-    background: #001100;
-    cursor: default;
-    box-shadow: none;
-  }
-
-  /* Informacje o statusie */
-  #info {
-    max-width: 600px;
-    margin: 0 auto 1rem auto;
-    font-size: 1rem;
-    line-height: 1.4;
-    min-height: 2.5rem;
-  }
-
-  /* Lista słów możliwych */
-  #possibleWords {
-    max-width: 600px;
-    margin: 0 auto;
-    font-size: 0.9rem;
-    color: #0a0;
-    background: #002200;
-    border: 1px solid #0f0;
-    padding: 0.5rem;
-    border-radius: 4px;
-    max-height: 120px;
-    overflow-y: auto;
-    user-select: text;
-  }
-
-  /* Statystyki */
-  #stats {
-    max-width: 600px;
-    margin: 1rem auto 0 auto;
-    font-size: 1rem;
-    text-align: center;
-    color: #0f0;
-    font-weight: bold;
-  }
-
-  /* Efekt CRT - delikatny */
-  @keyframes flicker {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.85; }
-  }
-  body {
-    animation: flicker 3s infinite;
-  }
-
-  /* Responsywność */
-  @media (max-width: 480px) {
-    .word {
-      font-size: 1.1rem;
-      padding: 0.2rem 0.1rem;
+  <meta charset="UTF-8">
+  <title>Minigra Hackowania</title>
+  <style>
+    body {
+      background-color: black;
+      color: limegreen;
+      font-family: monospace;
+      padding: 20px;
     }
-  }
-</style>
+
+    #terminal {
+      white-space: pre;
+      border: 1px solid green;
+      padding: 10px;
+      margin-top: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .line {
+      cursor: pointer;
+    }
+
+    .line:hover {
+      background-color: darkgreen;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    button {
+      background-color: black;
+      color: limegreen;
+      border: 1px solid green;
+      padding: 10px 20px;
+      font-family: monospace;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: darkgreen;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Terminal Hakowania - Fallout 3</h1>
+<h1>== TERMINAL HAKERSKI ==</h1>
+<button onclick="startHack()">START</button>
 
-<div id="terminal" aria-label="Terminal hakowania">
-  <div id="wordGrid" role="list" aria-live="polite" aria-relevant="additions removals"></div>
-</div>
-
-<div id="info" aria-live="polite"></div>
-
-<div id="possibleWords" aria-label="Możliwe słowa do odgadnięcia" tabindex="0"></div>
-
-<div id="stats" aria-live="polite"></div>
+<div id="terminal"></div>
+<div id="result"></div>
 
 <script>
-/**
- * Symulacja mechanizmu hakowania terminala w stylu Fallout 3.
- * - Słowa 6-literowe, po polsku, związane tematycznie z postapokalipsą.
- * - Po kliknięciu użytkownik wpisuje liczbę dopasowanych liter (likeness).
- * - Filtrowanie listy słów wg podanych podpowiedzi.
- * - Propozycja najlepszej kolejnej próby wg klasy CodeBreaker.
- */
+  const terminal = document.getElementById("terminal");
+  const result = document.getElementById("result");
 
-/* --- Lista słów tematycznych 6-literowych (polskie, postapo) --- */
-const ALL_WORDS = [
-  "RADIOW", // radioaktywny
-  "ATOMEK",
-  "ZAPALN",
-  "BUNKER",
-  "STALIN",
-  "KABURR",
-  "TANKER",
-  "BROŃKA",
-  "FUSION",
-  "GARNKI",
-  "MUTANT",
-  "ŚMIERT",
-  "PUSZKA",
-  "RADIAK",
-  "TRUCIZ",
-  "ŚWIATŁ",
-  "PRZEMI",
-  "PANCER",
-  "SMOGU",
-  "ZARAZA",
-  "BANDYT",
-  "WIRUS",
-  "DZIKUS",
-  "KRATER",
-  "STREFA",
-  "PŁOMIE",
-  "ZAGŁAD",
-  "KAPUST",
-  "MIASTO",
-  "RUINY",
-  "LASERK",
-  "PRAWDZ",
-  "MASZYN",
-  "OGIEŃ",
-  "NOKAUT",
-  "KLĄTWA",
-  "MECHAN",
-  "WIRNIK",
-  "ŁUPIEŻ",
-  "ŻELAZO",
-  "PAPIER",
-  "BOMBKA",
-  "SZYFRY",
-  "RADION",
-  "DZIKIE",
-  "JĄDROW",
-  "BÓBRKI",
-  "RUJNOW",
-  "KRWIĄ",
-  "PŁOŃCE",
-  "ZORGAN",
-  "ŁUSKA",
-  "ŚWITAN",
-  "ŻOŁĄD",
-  "KUPIEC",
-  "NITRAT",
-  "WYBUCH",
-  "OBLĘŻ",
-  "KOROZA",
-  "PIECZO",
-  "WYPAL",
-  "ZIELEŃ",
-  "SZAŁAS",
-  "PRZETW",
-  "ZAMKNI",
-  "ZASIEĆ",
-  "PIEŚŃ",
-  "ŁADUN",
-  "SKRZYN",
-  "GARNI",
-  "TWIERD",
-  "OSTRZE",
-  "SKRADA",
-  "ŁUCZNIK",
-  "WYRWA",
-  "ŚCIEŻK",
-  "WIATRU",
-  "SAPER",
-  "DZIAŁO",
-  "PŁÓTNO"
-].filter(w => w.length === 6);
+  const PASSWORD = generatePassword(); // losowe hasło
+  const LINES = 16; // liczba linii w terminalu
+  let clicked = false; // czy już kliknięto jedną z linii
 
-/* --- Utility functions --- */
-
-/**
- * Liczy likeness - liczbę znaków na tych samych pozycjach identycznych w dwóch słowach.
- * @param {string} word1 
- * @param {string} word2 
- * @returns {number}
- */
-function likeness(word1, word2) {
-  let count = 0;
-  for(let i = 0; i < word1.length; i++) {
-    if(word1[i] === word2[i]) count++;
-  }
-  return count;
-}
-
-/**
- * Wybiera najlepszą propozycję spośród listy słów.
- * Najlepsza to ta, która przy największej liczbie pozostałych słów maksymalnie rozdziela listę (minimalizuje maksymalną grupę wynikową).
- * Prosty heurystyczny wybór.
- * @param {string[]} candidates - lista możliwych słów
- * @returns {string} - najlepsza propozycja
- */
-function bestGuess(candidates) {
-  if(candidates.length === 0) return null;
-  if(candidates.length === 1) return candidates[0];
-
-  let bestWord = candidates[0];
-  let bestScore = Infinity;
-
-  for(let w of candidates) {
-    // Map likeness -> count
-    let likenessGroups = {};
-    for(let other of candidates) {
-      let l = likeness(w, other);
-      likenessGroups[l] = (likenessGroups[l] || 0) + 1;
+  // Generowanie losowego hasła (np. 6-literowe słowo z wielkich liter)
+  function generatePassword() {
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let pass = "";
+    for (let i = 0; i < 6; i++) {
+      pass += letters.charAt(Math.floor(Math.random() * letters.length));
     }
-    let maxGroupSize = Math.max(...Object.values(likenessGroups));
-    if(maxGroupSize < bestScore) {
-      bestScore = maxGroupSize;
-      bestWord = w;
+    return pass;
+  }
+
+  // Funkcja startowa uruchamiająca "hakowanie"
+  function startHack() {
+    terminal.innerHTML = "";
+    result.innerText = "";
+    clicked = false;
+
+    const lines = [];
+
+    // Wstaw losowe linie z "kodem"
+    for (let i = 0; i < LINES; i++) {
+      lines.push(randomCodeLine());
+    }
+
+    // Wylosuj jedną linię, która będzie zawierała prawidłowe hasło
+    const correctIndex = Math.floor(Math.random() * LINES);
+    lines[correctIndex] = injectPassword(lines[correctIndex], PASSWORD);
+
+    // Wyświetl wszystkie linie w terminalu
+    lines.forEach((line, index) => {
+      const div = document.createElement("div");
+      div.classList.add("line");
+      div.innerText = line;
+      div.addEventListener("click", () => checkLine(line));
+      terminal.appendChild(div);
+    });
+  }
+
+  // Funkcja tworząca losowy ciąg znaków udający kod
+  function randomCodeLine() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ{}[]()!@#$%^&*-_+=1234567890";
+    let str = "";
+    for (let i = 0; i < 30; i++) {
+      str += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return str;
+  }
+
+  // Wstrzykiwanie hasła do losowej pozycji w danej linii
+  function injectPassword(line, password) {
+    const pos = Math.floor(Math.random() * (line.length - password.length));
+    return line.slice(0, pos) + password + line.slice(pos + password.length);
+  }
+
+  // Sprawdzenie, czy kliknięto dobrą linię
+  function checkLine(line) {
+    if (clicked) return; // tylko jedno kliknięcie na grę
+    clicked = true;
+
+    if (line.includes(PASSWORD)) {
+      result.innerText = ">>> HACK UDANY: HASŁO ZNALEZIONE!";
+    } else {
+      result.innerText = ">>> HACK NIEUDANY: ZŁA LINIA!";
     }
   }
-  return bestWord;
-}
-
-/**
- * Filtruje listę słów na podstawie podanej próby i zwróconego likeness.
- * @param {string[]} wordList 
- * @param {string} guess 
- * @param {number} likenessCount 
- * @returns {string[]} - przefiltrowana lista słów
- */
-function filterWords(wordList, guess, likenessCount) {
-  return wordList.filter(w => likeness(w, guess) === likenessCount);
-}
-
-/* --- Model gry: CodeBreaker --- */
-class CodeBreaker {
-  constructor(allWords, secretWord) {
-    this.allWords = allWords.slice();
-    this.secretWord = secretWord;
-    this.possibleWords = allWords.slice();
-    this.guesses = []; // {word, likeness}
-  }
-
-  /**
-   * Dodaj próbę (zgadnięcie i otrzymany likeness).
-   * Filtrowanie możliwych słów.
-   * @param {string} word 
-   * @param {number} likenessCount 
-   */
-  addGuess(word, likenessCount) {
-    this.guesses.push({word, likenessCount});
-    this.possibleWords = this.possibleWords.filter(w => {
-      return this.guesses.every(g => likeness(w, g.word) === g.likenessCount);
-    });
-  }
-
-  /**
-   * Zwraca najlepszą propozycję kolejnej próby.
-   * @returns {string}
-   */
-  getBestGuess() {
-    return bestGuess(this.possibleWords);
-  }
-}
-
-/* --- UI i logika interakcji --- */
-
-const wordGridEl = document.getElementById('wordGrid');
-const infoEl = document.getElementById('info');
-const possibleWordsEl = document.getElementById('possibleWords');
-const statsEl = document.getElementById('stats');
-
-const WORD_LENGTH = 6;
-const MAX_ATTEMPTS = 10;
-
-// Wybieramy losowe hasło z listy
-const secretWord = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
-const game = new CodeBreaker(ALL_WORDS, secretWord);
-
-let attempts = 0;
-
-infoEl.textContent = "Kliknij na słowo, aby zgadnąć hasło.";
-
-function renderWords(wordList) {
-  wordGridEl.innerHTML = "";
-  for(let word of ALL_WORDS) {
-    const div = document.createElement('div');
-    div.textContent = word;
-    div.className = 'word';
-    if(!wordList.includes(word)) div.classList.add('disabled');
-    div.setAttribute('role', 'listitem');
-    div.setAttribute('tabindex', div.classList.contains('disabled') ? '-1' : '0');
-    div.addEventListener('click', () => {
-      if(div.classList.contains('disabled')) return;
-      onWordClick(word);
-    });
-    div.addEventListener('keydown', e => {
-      if(e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        if(!div.classList.contains('disabled')) onWordClick(word);
-      }
-    });
-    wordGridEl.appendChild(div);
-  }
-}
-
-function onWordClick(word) {
-  if(attempts >= MAX_ATTEMPTS) {
-    alert("Maksymalna liczba prób została osiągnięta!");
-    return;
-  }
-  // Pytamy użytkownika o likeness - liczba dopasowanych liter
-  let input = prompt(`Wybrałeś słowo: "${word}".\nPodaj liczbę dopasowanych liter (0-${WORD_LENGTH}):`);
-  if(input === null) return; // anulowanie
-  input = input.trim();
-  let likenessCount = Number(input);
-  if(isNaN(likenessCount) || likenessCount < 0 || likenessCount > WORD_LENGTH) {
-    alert(`Nieprawidłowa liczba dopasowanych liter! Wprowadź liczbę od 0 do ${WORD_LENGTH}.`);
-    return;
-  }
-
-  attempts++;
-  game.addGuess(word, likenessCount);
-
-  // Aktualizuj interfejs
-  updateUI();
-
-  // Sprawdź, czy odgadnięto hasło
-  if(word === secretWord && likenessCount === WORD_LENGTH) {
-    alert(`Gratulacje! Odgadłeś hasło: "${secretWord}". Udało się w ${attempts} próbach.`);
-  } else if(attempts >= MAX_ATTEMPTS) {
-    alert(`Przekroczyłeś maksymalną liczbę prób. Hasło to: "${secretWord}".`);
-  }
-}
-
-function updateUI() {
-  // Renderuj słowa z zaznaczeniem możliwych
-  renderWords(game.possibleWords);
-
-  // Info o próbach i statusie
-  infoEl.textContent = `Próba ${attempts} / ${MAX_ATTEMPTS}. Możliwe słowa: ${game.possibleWords.length}.`;
-
-  // Lista możliwych słów
-  possibleWordsEl.textContent = game.possibleWords.join(', ');
-
-  // Statystyki i propozycja
-  let best = game.getBestGuess();
-  statsEl.textContent = best
-    ? `Propozycja kolejnej próby: "${best.toUpperCase()}"`
-    : "Brak propozycji (lista słów pusta)";
-}
-
-// Pierwsze wyrenderowanie
-updateUI();
-
 </script>
 
 </body>
