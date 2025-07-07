@@ -1,22 +1,4 @@
 const words6 = [
-  "pustka",
-  "szczur",
-  "mutant",
-  "pluton",
-  "wirusy",
-  "klatwa",
-  "koktaj",
-  "lazury",
-  "kolaps",
-  "burzak",
-  "luszcz",
-  "kaktus",
-  "toksyn",
-  "trupak",
-  "nukler",
-  "gruzow",
-  "chemia",
-  "zatrut",
-  "ruinyj",
-  "zasieg"
-];
+  "pustka", "radio", "brońka", "radar", "wojna", "atomik", "zapal", "rakiet", "zboże", "skoków",
+  "opadł", "szkoda", "krypton", "zasób", "tlenek", "czarna", "pompa", "mokryj", "strefa", "złomek"
+].map(w => w.toUpperCase());

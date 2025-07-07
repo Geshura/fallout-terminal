@@ -1,87 +1,72 @@
-const terminalText = document.getElementById("terminal-text");
-const wordGrid = document.getElementById("word-grid");
+const maxAttempts = 5;
+let attemptsLeft = maxAttempts;
+let secretWord = "";
+const attemptsDiv = document.getElementById("attempts");
+const wordsListDiv = document.getElementById("words-list");
+const messageDiv = document.getElementById("message");
 
-let haslo = "";
-let probyPozostale = 5;
-let odkryteLitery = []; // tablica booleanów, które litery ujawnione
-
-// Uruchom grę
-function startGame() {
-  haslo = words6[Math.floor(Math.random() * words6.length)].toUpperCase();
-  probyPozostale = 5;
-  odkryteLitery = new Array(haslo.length).fill(false);
-
-  // Wyświetl tekst powitalny i stan początkowy
-  wypiszTerminal(buildDisplayText());
-  buildWordGrid();
-  updateAttempts();
+// Losuje słowo jako hasło
+function losujHaslo() {
+  const index = Math.floor(Math.random() * words6.length);
+  return words6[index];
 }
 
-// Generuje wyświetlany tekst z podkreśleniami i odkrytymi literami
-function buildDisplayText() {
-  let line = "HASŁO: ";
-  for(let i = 0; i < haslo.length; i++) {
-    line += odkryteLitery[i] ? haslo[i] : "_";
-    line += " ";
+// Oblicza ile liter się zgadza na tych samych pozycjach
+function porownajSlowa(a, b) {
+  let count = 0;
+  for(let i = 0; i < a.length; i++) {
+    if(a[i] === b[i]) count++;
   }
-  return line + "\n\nPRÓBY POZOSTAŁE: " + probyPozostale;
+  return count;
 }
 
-// Wyświetla tekst w terminalu
-function wypiszTerminal(text) {
-  terminalText.textContent = text;
-}
-
-// Buduje siatkę przycisków z słowami
-function buildWordGrid() {
-  wordGrid.innerHTML = "";
-  words6.forEach(w => {
-    const btn = document.createElement("button");
-    btn.textContent = w.toUpperCase();
-    btn.className = "word-btn";
-    btn.onclick = () => handleWordClick(btn, w);
-    wordGrid.appendChild(btn);
+// Rysuje listę słów
+function wyswietlSlowa() {
+  wordsListDiv.innerHTML = "";
+  words6.forEach(word => {
+    const span = document.createElement("span");
+    span.textContent = word;
+    span.classList.add("word");
+    span.addEventListener("click", () => kliknijSlowo(word));
+    wordsListDiv.appendChild(span);
   });
 }
 
-// Obsługuje kliknięcie w słowo
-function handleWordClick(button, word) {
-  if(probyPozostale <= 0 || button.disabled) return;
+// Obsługuje kliknięcie słowa
+function kliknijSlowo(word) {
+  if(attemptsLeft <= 0) return;
+  if(messageDiv.textContent.includes("KONIEC GRY")) return;
 
-  const guessedWord = word.toUpperCase();
-  if(guessedWord === haslo) {
-    // Zgadnięto hasło
-    odkryteLitery = odkryteLitery.map(() => true);
-    wypiszTerminal(buildDisplayText() + "\n\nWŁAMANIE POWODZENIE! HASŁO: " + haslo);
-    disableAllButtons();
-    return;
-  }
+  const matches = porownajSlowa(word, secretWord);
 
-  // Sprawdź ile liter zgadza się na swoich miejscach (jak w Fallout)
-  let correctLetters = 0;
-  for(let i = 0; i < haslo.length; i++) {
-    if(haslo[i] === guessedWord[i]) {
-      odkryteLitery[i] = true; // ujawnij te litery
-      correctLetters++;
+  attemptsLeft--;
+  attemptsDiv.textContent = `Próby: ${attemptsLeft}`;
+
+  if(word === secretWord) {
+    messageDiv.textContent = `UDAŁO SIĘ! Hasło to: ${secretWord}`;
+    blokujSlowa();
+  } else {
+    messageDiv.textContent = `Trafione liter: ${matches} z ${secretWord.length}`;
+    if(attemptsLeft === 0) {
+      messageDiv.textContent = `KONIEC GRY! Prawidłowe hasło to: ${secretWord}`;
+      blokujSlowa();
     }
   }
-
-  probyPozostale--;
-  wypiszTerminal(buildDisplayText() + `\n\nBŁĘDNE HASŁO! Trafione litery: ${correctLetters}`);
-
-  button.disabled = true;
-
-  updateAttempts();
-
-  if(probyPozostale <= 0) {
-    wypiszTerminal(buildDisplayText() + "\n\nBRAK PRÓB! HASŁO TO: " + haslo);
-    disableAllButtons();
-  }
 }
 
-function updateAttempts() {
-  // Już aktualizujemy w buildDisplayText, ale można tu rozbudować (np. dźwięk)
+// Blokuje kliknięcie słów po zakończeniu gry
+function blokujSlowa() {
+  const spans = document.querySelectorAll(".word");
+  spans.forEach(span => span.style.pointerEvents = "none");
 }
 
-function disableAllButtons() {
-  const buttons = wordGrid.querySelectorAll
+// Start gry
+function start() {
+  secretWord = losujHaslo();
+  attemptsLeft = maxAttempts;
+  attemptsDiv.textContent = `Próby: ${attemptsLeft}`;
+  messageDiv.textContent = "";
+  wyswietlSlowa();
+}
+
+start();

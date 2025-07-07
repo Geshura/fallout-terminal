@@ -2,74 +2,54 @@ body {
   background-color: black;
   color: #00ff00;
   font-family: 'Share Tech Mono', monospace;
-  margin: 0;
   display: flex;
   justify-content: center;
-  padding: 1rem;
+  align-items: flex-start;
   height: 100vh;
-  align-items: center;
-  user-select: none;
+  margin: 0;
+  padding: 20px;
 }
 
-.terminal {
-  background-color: black;
-  border: 3px solid #00ff00;
-  padding: 1rem;
-  width: 700px;
-  max-width: 90vw;
-  box-shadow:
-    0 0 20px #00ff00,
-    inset 0 0 40px #00ff00;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-height: 400px;
+.container {
+  width: 90vw;
+  max-width: 600px;
 }
 
-#terminal-text {
-  white-space: pre;
-  font-size: 18px;
-  line-height: 1.2;
-  min-height: 100px;
-  text-shadow:
-    0 0 5px #00ff00,
-    0 0 10px #00ff00,
-    0 0 20px #00ff00;
-}
-
-/* Siatka słów w wielu kolumnach (6-8) */
-#word-grid {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 0.5rem 1rem;
-  font-size: 18px;
-}
-
-/* Słowa jako przyciski */
-.word-btn {
-  background: transparent;
-  border: none;
-  color: #00ff00;
-  cursor: pointer;
-  font-family: 'Share Tech Mono', monospace;
-  font-weight: bold;
-  text-shadow:
-    0 0 5px #00ff00;
-  transition: color 0.3s ease;
-  padding: 2px 0;
-  user-select: none;
+h1 {
   text-align: center;
+  margin-bottom: 20px;
 }
 
-.word-btn:hover:not(:disabled) {
-  color: #aaffaa;
-  text-shadow:
-    0 0 10px #00ff00,
-    0 0 20px #00ff00;
+#attempts {
+  margin-bottom: 10px;
+  font-size: 1.3rem;
 }
 
-.word-btn:disabled {
-  color: #003300;
-  cursor: default;
-  text-shadow: none;
+#words-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.word {
+  background: #002200;
+  padding: 10px 15px;
+  border: 2px solid #00ff00;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 1.2rem;
+  transition: background 0.3s;
+}
+
+.word:hover {
+  background: #004400;
+}
+
+#message {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 1.4rem;
+  min-height: 40px;
 }
