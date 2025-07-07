@@ -1,4 +1,5 @@
+// Lista słów 6-literowych powiązanych z post-apo i Fallout 3
 const words6 = [
-  "pustka", "radio", "brońka", "radar", "wojna", "atomik", "zapal", "rakiet", "zboże", "skoków",
-  "opadł", "szkoda", "krypton", "zasób", "tlenek", "czarna", "pompa", "mokryj", "strefa", "złomek"
-].map(w => w.toUpperCase());
+  "PUSTKA", "RADIO", "BROŃKA", "RADAR", "WOJNA", "ATOMIK", "ZAPAL", "RAKIET", "ZBOŻE", "SKOKÓW",
+  "OPADŁ", "SZKODA", "KRYPTA", "ZASÓB", "TLENEK", "CZARNA", "POMPA", "MOKRYJ", "STREFA", "ZŁOMEK"
+];
