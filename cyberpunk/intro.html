@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cyberpunk Boot Intro z przyciskiem LET'S HACK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset i body */
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%;
+      background: #0a0a0a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Share Tech Mono', monospace;
+      overflow: hidden;
+    }
+
+    /* Kontener terminala */
+    #boot-container {
+      background: #000000dd;
+      border: 2px solid #0ff;
+      box-shadow: 0 0 20px #0ff, 0 0 40px #0ff77;
+      width: 80ch;
+      max-width: 95vw;
+      max-height: 70vh;
+      padding: 20px 30px;
+      color: #00ff00;
+      font-size: 1.2rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      position: relative;
+      user-select: none;
+      border-radius: 8px;
+      display: none; /* ukryty do startu */
+    }
+
+    /* Migający kursor */
+    #boot-text::after {
+      content: ' █';
+      animation: blink 1s step-start infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    /* Efekt flash ekranu */
+    .flash {
+      animation: flashscreen 0.1s;
+    }
+    @keyframes flashscreen {
+      0% { background-color: #00ff00; }
+      100% { background-color: transparent; }
+    }
+
+    /* Scrollbar styl */
+    #boot-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    #boot-container::-webkit-scrollbar-track {
+      background: #000;
+    }
+    #boot-container::-webkit-scrollbar-thumb {
+      background: #0ff;
+      border-radius: 4px;
+    }
+
+    /* Ekran startowy overlay */
+    #start-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      color: #0f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 10000;
+      user-select: none;
+    }
+
+    /* Duży przycisk LET'S HACK */
+    #start-button {
+      margin-top: 30px;
+      padding: 20px 60px;
+      font-size: 2rem;
+      font-weight: bold;
+      background: linear-gradient(90deg, #0ff, #08f);
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      box-shadow: 0 0 15px #0ff, 0 0 30px #08f;
+      transition: background 0.3s ease;
+    }
+    #start-button:hover {
+      background: linear-gradient(90deg, #08f, #0ff);
+      box-shadow: 0 0 25px #0ff, 0 0 45px #0ffbb;
+    }
+    #start-button:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ekran startowy z przyciskiem -->
+  <div id="start-overlay">
+    Kliknij, aby włączyć dźwięk i rozpocząć bootowanie
+    <button id="start-button">LET'S HACK</button>
+  </div>
+
+  <!-- Kontener terminala -->
+  <div id="boot-container">
+    <div id="boot-text"></div>
+  </div>
+
+  <script>
+    const bootLines = [
+      "[BOOT SEQUENCE INITIATED...]",
+      "→ Checking memory banks...",
+      "→ Loading hackOS kernel [v3.88.77-CYBER]",
+      "→ Mounting partitions /root /cyberspace /neural",
+      "→ Scanning input ports... FOUND 3x TERMINALS",
+      "→ Injecting memory exploit...",
+      "→ Decrypting Uplink Key...",
+      "→ Firewall override: SUCCESS",
+      "→ Establishing session link...",
+      "[ACCESS CHANNEL OPENED]",
+      "LOGIN: operator_01",
+      "AUTH: ********* OK",
+      ">> SYSTEM ONLINE"
+    ];
+
+    const bootText = document.getElementById("boot-text");
+    const container = document.getElementById("boot-container");
+    const startOverlay = document.getElementById("start-overlay");
+    const startButton = document.getElementById("start-button");
+
+    // AudioContext do beepów
+    const audio = new AudioContext();
+    function beep(freq = 220, dur = 0.05, vol = 0.3) {
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = "square";
+      osc.frequency.value = freq;
+      gain.gain.value = vol;
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start();
+      osc.stop(audio.currentTime + dur);
+    }
+
+    function glitchLine(line, callback) {
+      let i = 0;
+      const interval = setInterval(() => {
+        let fakeChar = String.fromCharCode(33 + Math.random() * 94);
+        const glitched = line.substring(0, i) + fakeChar.repeat(line.length - i);
+        // Usuwamy poprzednią linijkę i dopisujemy glitched
+        let lines = bootText.textContent.trimEnd().split('\n');
+        if(lines.length > 0) lines.pop();
+        lines.push(glitched);
+        bootText.textContent = lines.join('\n');
+        beep(200 + Math.random() * 200, 0.02);
+        i++;
+        if (i > line.length) {
+          clearInterval(interval);
+          bootText.textContent += "\n";
+          if (callback) callback();
+          container.scrollTop = container.scrollHeight;
+        }
+      }, 15 + Math.random() * 30);
+    }
+
+    function typeNextLine(index = 0) {
+      if (index >= bootLines.length) {
+        setTimeout(() => {
+          // Po zakończeniu można zrobić coś
+        }, 1000);
+        return;
+      }
+      if (index % 4 === 0) {
+        container.classList.add("flash");
+        setTimeout(() => container.classList.remove("flash"), 100);
+      }
+      glitchLine(bootLines[index], () => {
+        setTimeout(() => typeNextLine(index + 1), 150 + Math.random() * 300);
+      });
+    }
+
+    // Start po kliknięciu przycisku
+    startButton.addEventListener("click", () => {
+      if (audio.state !== "running") {
+        audio.resume();
+      }
+      startOverlay.style.display = "none";
+      container.style.display = "block";
+      typeNextLine();
+    });
+
+  </script>
+</body>
+</html>

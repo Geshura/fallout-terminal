@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cyberpunk Hack Terminal</title>
+
+  <!-- Dodatkowe futurystyczne fonty -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Share+Tech+Mono&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background: linear-gradient(180deg, #0f011d, #1a0033);
+      color: #00ffcc;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      padding: 20px;
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff;
+    }
+
+    #game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      gap: 10px;
+      min-height: 80%;
+      visibility: hidden; /* ukryte do startu */
+    }
+
+    button {
+      background: none;
+      color: #ff00ff;
+      border: 2px solid #ff00ff;
+      padding: 10px 30px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.8em;
+      cursor: pointer;
+      margin: 10px;
+      box-shadow: 0 0 10px #ff00ff;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #ff00ff;
+      color: black;
+    }
+
+    #terminal {
+      background-color: rgba(0, 0, 0, 0.9);
+      border: 2px solid #00ffff;
+      padding: 20px;
+      width: fit-content;
+      max-width: 95vw;
+      overflow-y: auto;
+      box-shadow: 0 0 15px #00ffff;
+      font-size: 1em;
+    }
+
+    .line {
+      cursor: pointer;
+      padding: 4px 10px;
+      white-space: nowrap;
+      color: #00ffcc;
+      transition: 0.2s;
+    }
+
+    .line:hover {
+      background-color: rgba(0, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    .clicked {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .clicked.success {
+      background-color: #b6ff9e; /* jasno zielony */
+      color: black;
+      font-weight: bold;
+    }
+
+    .clicked.failure {
+      background-color: #cc0000; /* krwisto czerwony */
+      color: white;
+    }
+
+    .clicked.wrong {
+      background-color: #ffcc00; /* żółty */
+      color: black;
+    }
+
+    #result {
+      font-weight: bold;
+      font-size: 1.2em;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    #progress-bar-container {
+      width: 90%;
+      height: 20px;
+      background-color: #222;
+      border: 2px solid #00ffff;
+      margin-top: 10px;
+      box-shadow: inset 0 0 5px #00ffff;
+    }
+
+    #progress-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #00ffff, #00ffcc);
+      transition: width 1s linear;
+    }
+
+    /* --- Intro overlay --- */
+    #start-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, #1a002f 0%, #000010 70%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      color: #ff00ff;
+      font-family: 'Orbitron', sans-serif;
+      user-select: none;
+    }
+
+    #intro-text {
+      font-size: 3rem;
+      text-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff;
+      margin-bottom: 40px;
+      opacity: 1;
+      transition: opacity 0.5s ease-out, color 0.5s ease-out, text-shadow 0.5s ease-out;
+    }
+
+    #start-button {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1rem;
+      padding: 15px 50px;
+      border: 3px solid #ff00ff;
+      background: none;
+      color: #ff00ff;
+      cursor: pointer;
+      box-shadow: 0 0 15px #ff00ff;
+      user-select: none;
+      display: none;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    #start-button:hover {
+      background-color: #ff00ff;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <h1>== CYBER-HACK INTERFACE ==</h1>
+
+  <!-- Intro ekran -->
+  <div id="start-overlay">
+    <div id="intro-text">READY TO HACK?</div>
+    <button id="start-button">LET'S HACK</button>
+  </div>
+
+  <div id="game-container">
+    <div id="progress-bar-container">
+      <div id="progress-bar"></div>
+    </div>
+    <div id="terminal"></div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const terminal = document.getElementById("terminal");
+    const result = document.getElementById("result");
+    const progressBar = document.getElementById("progress-bar");
+    const gameContainer = document.getElementById("game-container");
+    const startOverlay = document.getElementById("start-overlay");
+    const introText = document.getElementById("intro-text");
+    const startButton = document.getElementById("start-button");
+
+    const WORD_LIST = [
+      "VECTOR", "SYSTEM", "BREACH", "CYBERS", "ACCESS", "PROTON", "UPLOAD",
+      "ZER0ED", "QUANTA", "STATIC", "OUTPUT", "MATRIX", "VIRUSX", "GAMBLE", "PYTHON", "FISSION"
+    ];
+
+    let password = "";
+    let attempts = 4;
+    let clicked = false;
+    let timer = null;
+    let totalTime = 30;
+    let timeLeft = totalTime;
+
+    // Funkcja do losowego mieszania tablicy
+    function shuffle(arr) {
+      return arr.sort(() => Math.random() - 0.5);
+    }
+
+    // Funkcja generująca losową linię znaków
+    function randomLine() {
+      const chars = "!@#$%^&*()_+-={}[]<>|0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let result = "";
+      for (let i = 0; i < 34; i++) {
+        result += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return result;
+    }
+
+    // Funkcja wstrzykująca słowo w losowe miejsce linii
+    function injectWord(base, word) {
+      const pos = Math.floor(Math.random() * (base.length - word.length));
+      return base.slice(0, pos) + word + base.slice(pos + word.length);
+    }
+
+    // Funkcja obliczająca liczbę zgodnych znaków na tych samych pozycjach
+    function getMatchingLetters(a, b) {
+      return [...a].filter((char, i) => char === b[i]).length;
+    }
+
+    // Wyciąga 6-literowe słowo z linii
+    function extractWord(text) {
+      const match = text.match(/[A-Z0-9]{6}/);
+      return match ? match[0] : null;
+    }
+
+    // Uruchamia hackowanie
+    function startHack() {
+      terminal.innerHTML = "";
+      result.innerText = "";
+      clicked = false;
+      attempts = 4;
+      timeLeft = totalTime;
+      progressBar.style.width = "100%";
+
+      password = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+      const candidates = shuffle([...WORD_LIST]).slice(0, 7);
+      if (!candidates.includes(password)) {
+        candidates[Math.floor(Math.random() * candidates.length)] = password;
+      }
+
+      for (let i = 0; i < 18; i++) {
+        const word = candidates[Math.floor(Math.random() * candidates.length)];
+        const line = injectWord(randomLine(), word);
+        const div = document.createElement("div");
+        div.classList.add("line");
+        div.innerText = line;
+        div.addEventListener("click", () => checkLine(div, line));
+        terminal.appendChild(div);
+      }
+
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft--;
+        progressBar.style.width = `${(timeLeft / totalTime) * 100}%`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          endGame(false, ">>> CZAS MINĄŁ! <<<");
+        }
+      }, 1000);
+    }
+
+    // Sprawdza wybraną linię
+    function checkLine(div, line) {
+      if (clicked || div.classList.contains("clicked")) return;
+      const guess = extractWord(line);
+      if (!guess) return;
+
+      div.classList.add("clicked");
+
+      if (guess === password) {
+        div.classList.add("success");
+        clicked = true;
+        clearInterval(timer);
+        endGame(true, ">>> DOSTĘP PRZYZNANY <<<");
+      } else {
+        const match = getMatchingLetters(guess, password);
+        attempts--;
+        if (attempts <= 0) {
+          div.classList.add("failure");
+          clicked = true;
+          clearInterval(timer);
+          endGame(false, `>>> ZABLOKOWANO! HASŁO TO: ${password}`);
+        } else {
+          div.classList.add("wrong");
+          result.innerText = `✖ ${guess} | Zgodnych znaków: ${match}/6`;
+          result.style.color = "#ffcc00";
+        }
+      }
+    }
+
+    // Kończy grę, pokazuje wynik
+    function endGame(success, msg) {
+      result.innerText = msg;
+      result.style.color = success ? "#b6ff9e" : "#cc0000";
+    }
+
+    // Efekt migania tekstu intro
+    function blinkText(element, interval = 600) {
+      let visible = true;
+      return setInterval(() => {
+        element.style.opacity = visible ? '1' : '0.1';
+        visible = !visible;
+      }, interval);
+    }
+
+    // Pulsująca animacja przycisku start
+    function pulseButton(button) {
+      button.animate(
+        [
+          { boxShadow: '0 0 10px #ff00ff, 0 0 20px #ff00ff' },
+          { boxShadow: '0 0 30px #ff33ff, 0 0 60px #ff33ff' },
+          { boxShadow: '0 0 10px #ff00ff, 0 0 20px #ff00ff' }
+        ],
+        {
+          duration: 1500,
+          iterations: Infinity,
+        }
+      );
+    }
+
+    // Logika intro i startu gry
+    let blinkInterval = blinkText(introText);
+
+    setTimeout(() => {
+      clearInterval(blinkInterval);
+      introText.style.opacity = '1';
+      introText.style.color = '#ff99ff';
+      introText.style.textShadow = '0 0 30px #ff99ff';
+
+      startButton.style.display = 'inline-block';
+      pulseButton(startButton);
+    }, 3000);
+
+    startButton.onclick = async () => {
+      startOverlay.style.display = "none";
+      gameContainer.style.visibility = "visible";
+      startHack();
+    };
+  </script>
+</body>
+</html>
