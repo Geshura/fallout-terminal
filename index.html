@@ -2,66 +2,50 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Cyberpunk Hacking Terminal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyberpunk Hack Terminal</title>
   <style>
-    body {
+    /* Reset i pełnoekranowy układ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Courier New', monospace;
       background: linear-gradient(180deg, #0f011d, #1a0033);
       color: #00ffcc;
-      font-family: 'Courier New', monospace;
-      padding: 30px;
+      display: flex;
+      flex-direction: column;
     }
 
     h1 {
       color: #ff00ff;
       text-shadow: 0 0 10px #ff00ff;
+      text-align: center;
+      margin: 20px 0;
     }
 
-    #terminal {
-      background-color: rgba(0, 0, 0, 0.7);
-      border: 2px solid #00ffff;
-      padding: 15px;
-      margin-top: 20px;
-      max-height: 500px;
-      overflow-y: auto;
-      box-shadow: 0 0 15px #00ffff;
-    }
-
-    .line {
-      cursor: pointer;
-      padding: 2px;
-      transition: 0.2s;
-    }
-
-    .line:hover {
-      background-color: rgba(0, 255, 255, 0.2);
-      color: #ffffff;
-      text-shadow: 0 0 8px #00ffff;
-    }
-
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-      font-size: 1.2em;
-    }
-
-    .blink {
-      animation: blink 1s step-start infinite;
-    }
-
-    @keyframes blink {
-      50% {
-        opacity: 0;
-      }
+    #game-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
     }
 
     button {
       background: none;
       color: #ff00ff;
       border: 2px solid #ff00ff;
-      padding: 10px 20px;
+      padding: 10px 30px;
       font-family: monospace;
       font-size: 1em;
       cursor: pointer;
+      margin: 10px;
       box-shadow: 0 0 10px #ff00ff;
       transition: all 0.2s ease-in-out;
     }
@@ -77,147 +61,197 @@
       font-size: 1em;
       color: #00ffcc;
     }
+
+    #terminal {
+      flex: 1;
+      width: 100%;
+      max-width: 1000px;
+      background-color: rgba(0, 0, 0, 0.8);
+      border: 2px solid #00ffff;
+      padding: 15px;
+      margin-top: 10px;
+      overflow-y: auto;
+      box-shadow: 0 0 15px #00ffff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .line {
+      cursor: pointer;
+      padding: 4px;
+      transition: 0.2s;
+      font-size: 1em;
+      word-break: break-word;
+    }
+
+    .line:hover {
+      background-color: rgba(0, 255, 255, 0.2);
+      color: #ffffff;
+      text-shadow: 0 0 8px #00ffff;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 1.2em;
+      text-align: center;
+    }
+
+    .blink {
+      animation: blink 1s step-start infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    @media (max-width: 600px) {
+      .line {
+        font-size: 0.9em;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
 
-<h1>== CYBER-HACK INTERFACE ==</h1>
-<button onclick="startHack()">START</button>
+  <h1>== CYBER-HACK INTERFACE ==</h1>
 
-<div id="status"></div>
-<div id="terminal"></div>
-<div id="result" class="blink"></div>
+  <div id="game-container">
+    <button onclick="startHack()">START</button>
+    <div id="status"></div>
+    <div id="terminal"></div>
+    <div id="result" class="blink"></div>
+  </div>
 
-<script>
-  const terminal = document.getElementById("terminal");
-  const result = document.getElementById("result");
-  const status = document.getElementById("status");
+  <script>
+    const terminal = document.getElementById("terminal");
+    const result = document.getElementById("result");
+    const status = document.getElementById("status");
 
-  const WORD_LIST = [
-    "VECTOR", "SYSTEM", "BREACH", "CYBERS", "ACCESS", "PROTON", "UPLOAD",
-    "ZER0ED", "QUANTA", "STATIC", "OUTPUT", "MATRIX", "VIRUSX", "GAMBLE", "PYTHON", "FISSION"
-  ];
+    const WORD_LIST = [
+      "VECTOR", "SYSTEM", "BREACH", "CYBERS", "ACCESS", "PROTON", "UPLOAD",
+      "ZER0ED", "QUANTA", "STATIC", "OUTPUT", "MATRIX", "VIRUSX", "GAMBLE", "PYTHON", "FISSION"
+    ];
 
-  let password = "";
-  let attempts = 4;
-  let timer = null;
-  let timeLeft = 30;
-  let clicked = false;
+    let password = "";
+    let attempts = 4;
+    let timer = null;
+    let timeLeft = 30;
+    let clicked = false;
 
-  function startHack() {
-    // Reset everything
-    terminal.innerHTML = "";
-    result.innerText = "";
-    status.innerText = "";
-    clicked = false;
-    attempts = 4;
-    timeLeft = 30;
+    function startHack() {
+      // Reset gry
+      terminal.innerHTML = "";
+      result.innerText = "";
+      status.innerText = "";
+      clicked = false;
+      attempts = 4;
+      timeLeft = 30;
 
-    // Choose password and distractors
-    password = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
-    const candidates = shuffle([...WORD_LIST]).slice(0, 7);
+      // Wybierz hasło
+      password = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+      const candidates = shuffle([...WORD_LIST]).slice(0, 7);
 
-    if (!candidates.includes(password)) {
-      candidates[Math.floor(Math.random() * candidates.length)] = password;
-    }
-
-    // Build lines with random filler
-    const lines = [];
-    for (let i = 0; i < 18; i++) {
-      let word = candidates[Math.floor(Math.random() * candidates.length)];
-      let line = injectWord(randomCodeLine(), word);
-      lines.push(line);
-    }
-
-    // Render lines
-    lines.forEach(line => {
-      const div = document.createElement("div");
-      div.classList.add("line");
-      div.innerText = line;
-      div.addEventListener("click", () => checkLine(line));
-      terminal.appendChild(div);
-    });
-
-    // Start countdown
-    updateStatus();
-    timer = setInterval(() => {
-      timeLeft--;
-      updateStatus();
-      if (timeLeft <= 0) {
-        clearInterval(timer);
-        endGame(false, ">>> CZAS MINĄŁ! <<<");
+      if (!candidates.includes(password)) {
+        candidates[Math.floor(Math.random() * candidates.length)] = password;
       }
-    }, 1000);
-  }
 
-  function updateStatus() {
-    status.innerText = `🕒 Pozostały czas: ${timeLeft}s | 🛡️ Próby: ${attempts}`;
-  }
+      const lines = [];
+      for (let i = 0; i < 18; i++) {
+        let word = candidates[Math.floor(Math.random() * candidates.length)];
+        let line = injectWord(randomCodeLine(), word);
+        lines.push(line);
+      }
 
-  function injectWord(line, word) {
-    const pos = Math.floor(Math.random() * (line.length - word.length));
-    return line.slice(0, pos) + word + line.slice(pos + word.length);
-  }
+      lines.forEach(line => {
+        const div = document.createElement("div");
+        div.classList.add("line");
+        div.innerText = line;
+        div.addEventListener("click", () => checkLine(line));
+        terminal.appendChild(div);
+      });
 
-  function randomCodeLine() {
-    const chars = "{}[]<>!@#$%^&*()_+=-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let str = "";
-    for (let i = 0; i < 34; i++) {
-      str += chars.charAt(Math.floor(Math.random() * chars.length));
+      updateStatus();
+      timer = setInterval(() => {
+        timeLeft--;
+        updateStatus();
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          endGame(false, ">>> CZAS MINĄŁ! <<<");
+        }
+      }, 1000);
     }
-    return str;
-  }
 
-  function checkLine(line) {
-    if (clicked) return;
+    function updateStatus() {
+      status.innerText = `🕒 Czas: ${timeLeft}s | 🛡️ Próby: ${attempts}`;
+    }
 
-    const match = extractWord(line);
+    function injectWord(line, word) {
+      const pos = Math.floor(Math.random() * (line.length - word.length));
+      return line.slice(0, pos) + word + line.slice(pos + word.length);
+    }
 
-    if (!match) return;
+    function randomCodeLine() {
+      const chars = "{}[]<>!@#$%^&*()_+=-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let str = "";
+      for (let i = 0; i < 34; i++) {
+        str += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return str;
+    }
 
-    if (match === password) {
-      clicked = true;
-      clearInterval(timer);
-      endGame(true, ">>> DOSTĘP PRZYZNANY <<<");
-    } else {
-      attempts--;
-      const score = getMatchingLetters(match, password);
-      if (attempts <= 0) {
+    function checkLine(line) {
+      if (clicked) return;
+
+      const match = extractWord(line);
+      if (!match) return;
+
+      if (match === password) {
         clicked = true;
         clearInterval(timer);
-        endGame(false, `>>> BŁĘDNE HASŁO! BYŁO: ${password}`);
+        endGame(true, ">>> DOSTĘP PRZYZNANY <<<");
       } else {
-        result.innerText = `✖ Błędne hasło: ${match} | ${score}/6 znaków pasuje`;
-        updateStatus();
+        attempts--;
+        const score = getMatchingLetters(match, password);
+        if (attempts <= 0) {
+          clicked = true;
+          clearInterval(timer);
+          endGame(false, `>>> BŁĘDNE HASŁO! BYŁO: ${password}`);
+        } else {
+          result.innerText = `✖ ${match} | Zgodnych znaków: ${score}/6`;
+          updateStatus();
+        }
       }
     }
-  }
 
-  function extractWord(line) {
-    // Wydobywa 6-literowe słowo z linii
-    const regex = /[A-Z]{6}/;
-    const found = line.match(regex);
-    return found ? found[0] : null;
-  }
-
-  function getMatchingLetters(a, b) {
-    let count = 0;
-    for (let i = 0; i < 6; i++) {
-      if (a[i] === b[i]) count++;
+    function extractWord(line) {
+      const regex = /[A-Z]{6}/;
+      const found = line.match(regex);
+      return found ? found[0] : null;
     }
-    return count;
-  }
 
-  function endGame(success, message) {
-    result.innerText = message;
-    result.style.color = success ? "#00ff99" : "#ff0033";
-    result.style.textShadow = `0 0 10px ${success ? "#00ff99" : "#ff0033"}`;
-  }
+    function getMatchingLetters(a, b) {
+      let count = 0;
+      for (let i = 0; i < 6; i++) {
+        if (a[i] === b[i]) count++;
+      }
+      return count;
+    }
 
-  function shuffle(array) {
-    return array.sort(() => Math.random() - 0.5);
-  }
-</script>
+    function endGame(success, message) {
+      result.innerText = message;
+      result.style.color = success ? "#00ff99" : "#ff0033";
+      result.style.textShadow = `0 0 10px ${success ? "#00ff99" : "#ff0033"}`;
+    }
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+  </script>
 
 </body>
 </html>
