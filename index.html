@@ -2,30 +2,34 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Symulacja Włamania - Fallout 3</title>
 
-  <!-- Styl -->
+  <!-- Styl terminalowy -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Czcionka -->
+  <!-- Klimatyczna czcionka terminalowa -->
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
     <h1>Terminal Bractwa Stali</h1>
 
-    <div class="difficulty-selector">
-      <label><input type="radio" name="difficulty" value="easy"> Łatwy</label>
-      <label><input type="radio" name="difficulty" value="medium"> Średni</label>
-      <label><input type="radio" name="difficulty" value="hard"> Trudny</label>
+    <div id="difficulty-select">
+      <label><input type="checkbox" name="difficulty" value="easy" class="difficulty-checkbox"> Łatwy</label>
+      <label><input type="checkbox" name="difficulty" value="medium" class="difficulty-checkbox"> Średni</label>
+      <label><input type="checkbox" name="difficulty" value="hard" class="difficulty-checkbox"> Trudny</label>
     </div>
 
     <pre id="terminal" class="terminal">Wybierz poziom trudności, aby rozpocząć...</pre>
+
     <div id="input-wrapper"></div>
   </div>
 
+  <!-- Lista słów -->
   <script src="words.js"></script>
+
+  <!-- Logika gry -->
   <script src="script.js"></script>
 </body>
 </html>
