@@ -1,77 +1,19 @@
-const words4 = [
-  "KOTE",
-  "DOMY",
-  "PLOT",
-  "ROZA",
-  "KAWA",
-  "MIEL",
-  "LASY",
-  "OGON",
-  "GRAD",
-  "MOST"
-];
+const words = [
+  // 4 litery
+  "kret", "domu", "lódź", "sól", "kosa",
 
-const words5 = [
-  "KOTKA",
-  "DOMKI",
-  "PLOTY",
-  "ROZAN",
-  "KAWKA",
-  "MIELI",
-  "LASKA",
-  "OGONY",
-  "GRADY",
-  "MOSTY"
-];
+  // 5 liter
+  "zebra", "okres", "zamek", "klucz", "brama",
 
-const words6 = [
-  "KOTKOW",
-  "DOMKOW",
-  "PLOTKA",
-  "ROZANA",
-  "KAWYKA",
-  "MIELIC",
-  "LASKIY",
-  "OGONKI",
-  "GRADZI",
-  "MOSTEK"
-];
+  // 6 liter
+  "władca", "wojtek", "zegary", "obrona", "silnik",
 
-const words7 = [
-  "KOTKOWY",
-  "DOMKOWA",
-  "PLOTKAM",
-  "ROZANIE",
-  "KAWKAMI",
-  "MIELICY",
-  "LASKIEM",
-  "OGONKOW",
-  "GRADZIK",
-  "MOSTEKI"
-];
+  // 7 liter
+  "komnata", "obrońca", "pancern", "hakowie",
 
-const words8 = [
-  "KOTKOWYM",
-  "DOMKOWAŁ",
-  "PLOTKAMI",
-  "ROZANIEK",
-  "KAWKAMIĘ",
-  "MIELICZA",
-  "LASKIEMI",
-  "OGONKOWA",
-  "GRADZIKI",
-  "MOSTEKIN"
-];
+  // 8 liter
+  "generator", "rozgrywka", "archiwum", "komputer",
 
-const words9 = [
-  "KOTKOWYMI",
-  "DOMKOWAŁY",
-  "PLOTKAMIA",
-  "ROZANIEKU",
-  "KAWKAMIEM",
-  "MIELICZAN",
-  "LASKIEMIO",
-  "OGONKOWAN",
-  "GRADZIKOM",
-  "MOSTEKINO"
+  // 9 liter
+  "bezpieczeń", "eksplozje", "nawigacja", "mutantami"
 ];
