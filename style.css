@@ -6,8 +6,7 @@ body {
   margin: 0;
   background-color: #000;
   color: #00ff00;
-  font-family: 'Share Tech Mono', monospace, Courier, monospace;
-  font-weight: 400;
+  font-family: 'Share Tech Mono', monospace;
   font-size: clamp(14px, 1.8vw, 20px);
   line-height: 1.4;
   padding: 1rem 2rem;
@@ -18,40 +17,35 @@ body {
   min-height: 100vh;
 }
 
-#difficulty-select {
-  max-width: 400px;
-  width: 90vw;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-#difficulty-select h1 {
+h1 {
   margin-bottom: 1rem;
 }
 
-#difficulty-select label {
-  display: block;
-  margin: 0.4rem 0;
+.difficulty-selector {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.difficulty-selector label {
   cursor: pointer;
   font-size: 1.2rem;
 }
 
-#difficulty-select input[type="checkbox"] {
+.difficulty-selector input[type="radio"] {
+  margin-right: 0.4rem;
   transform: scale(1.2);
-  margin-right: 0.5rem;
-  cursor: pointer;
 }
 
 #terminal {
-  max-width: 90vw;
   width: 90vw;
-  height: 80vh;
+  max-width: 800px;
+  height: 70vh;
   white-space: pre-wrap;
   text-shadow:
     0 0 5px #00ff00,
     0 0 10px #00ff00,
-    0 0 20px #00ff00,
-    0 0 30px #00ff00;
+    0 0 20px #00ff00;
   overflow-y: auto;
   padding: 1rem;
   border: 2px solid #00ff00;
@@ -61,36 +55,23 @@ body {
   flex-direction: column;
 }
 
-.input-line {
-  display: flex;
-  margin-top: 0.3rem;
+#input-wrapper {
+  margin-top: 1rem;
 }
 
-.input-line span {
-  user-select: none;
-}
-
-input {
+input[type="text"] {
   background: transparent;
   border: none;
   outline: none;
   color: #00ff00;
   font-family: inherit;
-  font-weight: 400;
-  font-size: clamp(14px, 1.8vw, 20px);
-  flex-grow: 1;
+  font-size: 1.5rem;
+  padding: 0.4rem;
+  width: 3rem;
+  text-align: center;
   caret-color: #00ff00;
 }
 
-input::selection {
+input[type="text"]::selection {
   background-color: #004400;
-}
-
-@keyframes crt-flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
-}
-
-#terminal.active {
-  animation: crt-flicker 0.15s infinite;
 }
