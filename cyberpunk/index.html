@@ -1,57 +1,79 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <title>Cyberpunk Boot Intro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>Cyberpunk Boot Intro w Kontenerze</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
+    /* Reset i styl body */
     html, body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      color: #00ff00;
-      font-family: 'Share Tech Mono', monospace;
+      margin: 0; padding: 0;
       height: 100%;
-      overflow: hidden;
+      background: #0a0a0a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Share Tech Mono', monospace;
     }
 
-    #boot-screen {
-      position: fixed;
-      inset: 0;
-      background: black;
-      padding: 40px;
+    /* Kontener terminala */
+    #boot-container {
+      background: #000000dd; /* lekko przezroczyste, ciemne tło */
+      border: 2px solid #0ff; /* cyberpunkowa jasna ramka */
+      box-shadow: 0 0 20px #0ff, 0 0 40px #0ff77;
+      width: 80ch; /* szerokość na 80 znaków */
+      max-width: 95vw; /* max szerokość na małych ekranach */
+      max-height: 70vh;
+      padding: 20px 30px;
       color: #00ff00;
-      font-size: 1rem;
-      line-height: 1.5;
+      font-size: 1.2rem;
+      line-height: 1.4;
       white-space: pre-wrap;
-      z-index: 9999;
+      overflow-y: auto;
+      position: relative;
+      user-select: none;
+      border-radius: 8px;
     }
 
+    /* Migający kursor */
     #boot-text::after {
       content: ' █';
       animation: blink 1s step-start infinite;
     }
-
     @keyframes blink {
       50% { opacity: 0; }
     }
 
+    /* Efekt flash ekranu */
     .flash {
       animation: flashscreen 0.1s;
     }
-
     @keyframes flashscreen {
       0% { background-color: #00ff00; }
-      100% { background-color: black; }
+      100% { background-color: transparent; }
+    }
+
+    /* Scrollbar styl (delikatny cyberpunk) */
+    #boot-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    #boot-container::-webkit-scrollbar-track {
+      background: #000;
+    }
+    #boot-container::-webkit-scrollbar-thumb {
+      background: #0ff;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
-  <div id="boot-screen">
+
+  <div id="boot-container">
     <div id="boot-text"></div>
   </div>
 
   <script>
+    // Linie tekstu do wyświetlenia podczas bootowania
     const bootLines = [
       "[BOOT SEQUENCE INITIATED...]",
       "→ Checking memory banks...",
@@ -69,8 +91,9 @@
     ];
 
     const bootText = document.getElementById("boot-text");
-    const screen = document.getElementById("boot-screen");
+    const container = document.getElementById("boot-container");
 
+    // AudioContext do prostych beepów
     const audio = new AudioContext();
     function beep(freq = 220, dur = 0.05, vol = 0.3) {
       const osc = audio.createOscillator();
@@ -84,34 +107,37 @@
       osc.stop(audio.currentTime + dur);
     }
 
+    // Funkcja "glitchująca" linie - losowe znaki na końcu, aż odsłoni całość
     function glitchLine(line, callback) {
-      let glitched = "";
       let i = 0;
       const interval = setInterval(() => {
         let fakeChar = String.fromCharCode(33 + Math.random() * 94);
-        glitched = line.substring(0, i) + fakeChar.repeat(line.length - i);
-        bootText.textContent += "\r" + glitched;
+        const glitched = line.substring(0, i) + fakeChar.repeat(line.length - i);
+        bootText.textContent = bootText.textContent.replace(/\n?$/, "\n") + "\r" + glitched;
         beep(200 + Math.random() * 200, 0.02);
         i++;
         if (i > line.length) {
           clearInterval(interval);
           bootText.textContent += "\n";
           if (callback) callback();
+          container.scrollTop = container.scrollHeight;
         }
       }, 15 + Math.random() * 30);
     }
 
+    // Typowanie kolejnych linii z efektem flash co 4 linie
     function typeNextLine(index = 0) {
       if (index >= bootLines.length) {
         setTimeout(() => {
-          screen.style.display = 'none';
+          // Po zakończeniu można zrobić coś, np. ukryć ekran
+          // container.style.display = 'none';
         }, 1000);
         return;
       }
 
       if (index % 4 === 0) {
-        screen.classList.add("flash");
-        setTimeout(() => screen.classList.remove("flash"), 100);
+        container.classList.add("flash");
+        setTimeout(() => container.classList.remove("flash"), 100);
       }
 
       glitchLine(bootLines[index], () => {
@@ -120,7 +146,7 @@
     }
 
     window.addEventListener("load", () => {
-      // Automatyczne wznowienie AudioContext po kliknięciu
+      // Wznowienie AudioContext na klik
       document.body.addEventListener("click", () => {
         if (audio.state !== "running") {
           audio.resume();
@@ -130,9 +156,9 @@
       setTimeout(() => typeNextLine(), 500);
     });
 
-    // Kliknięcie pomija intro
-    screen.addEventListener("click", () => {
-      screen.style.display = 'none';
+    // Kliknięcie na kontener pomija intro
+    container.addEventListener("click", () => {
+      container.style.display = 'none';
     });
   </script>
 </body>
