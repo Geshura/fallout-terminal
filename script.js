@@ -1,45 +1,49 @@
 const wordListEl = document.getElementById("word-list");
 const statusEl = document.getElementById("status");
-const attemptsEl = document.getElementById("attempts");
+const terminalEl = document.getElementById("terminal");
 
 let haslo = "";
 let probyPozostale = 5;
 
 function startGame() {
-  // Losujemy hasło
   haslo = words6[Math.floor(Math.random() * words6.length)].toUpperCase();
   probyPozostale = 5;
-  statusEl.textContent = "Kliknij słowo, aby odgadnąć hasło";
-  attemptsEl.textContent = `Próby pozostałe: ${probyPozostale}`;
+  statusEl.textContent = "";
+  
+  // Wyświetl aktualne próby
+  updateAttempts();
 
-  // Generujemy listę słów
+  // Wyczyść listę i wygeneruj nowe słowa jako przyciski
   wordListEl.innerHTML = "";
   words6.forEach(w => {
     const btn = document.createElement("button");
     btn.textContent = w.toUpperCase();
-    btn.className = "word-btn";
-    btn.addEventListener("click", () => {
-      if (probyPozostale <= 0) return;
-      if (btn.disabled) return;
-
-      if (w.toUpperCase() === haslo) {
-        statusEl.textContent = `Gratulacje! Odgadłeś hasło: ${haslo}`;
-        disableButtons();
-      } else {
-        probyPozostale--;
-        attemptsEl.textContent = `Próby pozostałe: ${probyPozostale}`;
-        btn.disabled = true;
-
-        if (probyPozostale === 0) {
-          statusEl.textContent = `Koniec gry! Hasło to: ${haslo}`;
-          disableButtons();
-        } else {
-          statusEl.textContent = `Błędne słowo, spróbuj ponownie`;
-        }
-      }
-    });
+    btn.classList.add("word-btn");
+    btn.addEventListener("click", () => kliknietoSlowo(btn, w));
     wordListEl.appendChild(btn);
   });
+}
+
+function kliknietoSlowo(button, slowo) {
+  if(probyPozostale <= 0 || button.disabled) return;
+
+  if(slowo.toUpperCase() === haslo) {
+    statusEl.textContent = `>> ${haslo} - POPRAWNE HASŁO! WŁAMANIE POWODZENIE. <<`;
+    disableButtons();
+  } else {
+    probyPozostale--;
+    statusEl.textContent = `>> ${slowo.toUpperCase()} - BŁĘDNE HASŁO. SPRÓBUJ PONOWNIE. <<`;
+    button.disabled = true;
+    updateAttempts();
+    if(probyPozostale === 0) {
+      statusEl.textContent = `>> BRAK PRÓB! HASŁO TO: ${haslo} <<`;
+      disableButtons();
+    }
+  }
+}
+
+function updateAttempts() {
+  terminalEl.textContent = `Wybierz słowo, aby włamać się do systemu:\n\nPRÓBY POZOSTAŁE: ${probyPozostale}\n`;
 }
 
 function disableButtons() {
@@ -47,5 +51,5 @@ function disableButtons() {
   buttons.forEach(b => b.disabled = true);
 }
 
-// Start gry po załadowaniu
+// Startujemy grę po załadowaniu
 startGame();

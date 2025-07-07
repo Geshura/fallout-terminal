@@ -1,3 +1,4 @@
+/* Ogólne stylowanie terminala w stylu Fallout 3 */
 body {
   background: black;
   color: #00ff00;
@@ -7,49 +8,86 @@ body {
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .container {
-  max-width: 600px;
+  max-width: 700px;
   width: 100%;
+  border: 2px solid #00ff00;
+  border-radius: 5px;
+  padding: 1rem;
+  background-color: #000;
+  box-shadow:
+    0 0 10px #00ff00,
+    inset 0 0 30px #00ff00;
 }
 
-#word-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 1rem;
+h1 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  text-shadow:
+    0 0 10px #00ff00;
 }
 
-.word-btn {
-  background: #004400;
+/* Terminalowy tekst */
+.terminal {
+  white-space: pre-wrap;
+  font-size: clamp(14px, 1.4vw, 18px);
+  min-height: 80px;
   border: 1px solid #00ff00;
-  color: #00ff00;
-  font-size: 1.2rem;
   padding: 0.5rem 1rem;
-  cursor: pointer;
-  border-radius: 4px;
-  user-select: none;
-  transition: background 0.3s;
+  margin-bottom: 1rem;
+  background: #000;
+  box-shadow:
+    0 0 10px #00ff00 inset;
+  line-height: 1.3;
 }
 
-.word-btn:hover {
-  background: #007700;
+/* Lista słów w kolumnach, terminalowy wygląd */
+.word-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px 20px;
+  font-size: clamp(14px, 1.5vw, 18px);
+  user-select: none;
+}
+
+/* Każde słowo stylowane jak terminalowy przycisk */
+.word-btn {
+  color: #00ff00;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  padding: 0.2rem 0;
+  text-align: center;
+  text-shadow:
+    0 0 10px #00ff00;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.word-btn:hover:not(:disabled) {
+  color: #fff;
+  text-shadow:
+    0 0 20px #00ff00,
+    0 0 30px #00ff00;
 }
 
 .word-btn:disabled {
-  background: #002200;
-  cursor: default;
   color: #005500;
+  cursor: default;
+  text-shadow: none;
 }
 
-#status {
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
-}
-
-#attempts {
+/* Status na dole */
+.status {
+  min-height: 60px;
+  font-size: clamp(14px, 1.3vw, 16px);
   margin-top: 1rem;
-  font-size: 1.2rem;
+  border-top: 1px solid #00ff00;
+  padding-top: 0.5rem;
+  line-height: 1.3;
 }
