@@ -2,104 +2,164 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>Cyberpunk Boot Intro z przyciskiem LET'S HACK</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cyberpunk Hack Terminal</title>
+
+  <!-- Futurystyczne fonty -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Share+Tech+Mono&family=Press+Start+2P&display=swap" rel="stylesheet">
+
   <style>
-    /* Reset i body */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     html, body {
-      margin: 0; padding: 0;
       height: 100%;
-      background: #0a0a0a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: linear-gradient(180deg, #0f011d, #1a0033);
+      color: #00ffcc;
       font-family: 'Share Tech Mono', monospace;
-      overflow: hidden;
     }
 
-    /* Kontener terminala */
-    #boot-container {
-      background: #000000dd;
-      border: 2px solid #0ff;
-      box-shadow: 0 0 20px #0ff, 0 0 40px #0ff77;
-      width: 80ch;
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      padding: 20px;
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff;
+    }
+
+    #game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      gap: 10px;
+      min-height: 80%;
+    }
+
+    button {
+      background: none;
+      color: #ff00ff;
+      border: 2px solid #ff00ff;
+      padding: 10px 30px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.8em;
+      cursor: pointer;
+      margin: 10px;
+      box-shadow: 0 0 10px #ff00ff;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #ff00ff;
+      color: black;
+    }
+
+    #terminal {
+      background-color: rgba(0, 0, 0, 0.9);
+      border: 2px solid #00ffff;
+      padding: 20px;
+      width: fit-content;
       max-width: 95vw;
-      max-height: 70vh;
-      padding: 20px 30px;
-      color: #00ff00;
-      font-size: 1.2rem;
-      line-height: 1.4;
-      white-space: pre-wrap;
       overflow-y: auto;
-      position: relative;
+      box-shadow: 0 0 15px #00ffff;
+      font-size: 1em;
+      white-space: nowrap;
+    }
+
+    .line {
+      cursor: pointer;
+      padding: 4px 10px;
+      white-space: nowrap;
+      color: #00ffcc;
+      transition: 0.2s;
       user-select: none;
-      border-radius: 8px;
-      display: none; /* ukryty do startu */
     }
 
-    /* Migający kursor */
-    #boot-text::after {
-      content: ' █';
-      animation: blink 1s step-start infinite;
-    }
-    @keyframes blink {
-      50% { opacity: 0; }
+    .line:hover {
+      background-color: rgba(0, 255, 255, 0.1);
+      color: #ffffff;
     }
 
-    /* Efekt flash ekranu */
-    .flash {
-      animation: flashscreen 0.1s;
-    }
-    @keyframes flashscreen {
-      0% { background-color: #00ff00; }
-      100% { background-color: transparent; }
+    .clicked {
+      pointer-events: none;
+      opacity: 0.6;
     }
 
-    /* Scrollbar styl */
-    #boot-container::-webkit-scrollbar {
-      width: 8px;
+    .clicked.success {
+      background-color: #00ff66;
+      color: black;
+      font-weight: bold;
     }
-    #boot-container::-webkit-scrollbar-track {
-      background: #000;
+
+    .clicked.failure {
+      background-color: #ff0000;
+      color: white;
     }
-    #boot-container::-webkit-scrollbar-thumb {
-      background: #0ff;
-      border-radius: 4px;
+
+    .clicked.wrong {
+      background-color: #ffaa00;
+      color: black;
+    }
+
+    #result {
+      font-weight: bold;
+      font-size: 1.2em;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    #progress-bar-container {
+      width: 90%;
+      height: 20px;
+      background-color: #222;
+      border: 2px solid #00ffff;
+      margin-top: 10px;
+      box-shadow: inset 0 0 5px #00ffff;
+    }
+
+    #progress-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #00ffff, #00ffcc);
+      transition: width 1s linear;
     }
 
     /* Ekran startowy overlay */
     #start-overlay {
       position: fixed;
       inset: 0;
-      background: #000;
-      color: #0f0;
+      background: #000c;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       font-family: 'Share Tech Mono', monospace;
-      font-size: 1.5rem;
-      cursor: pointer;
-      z-index: 10000;
+      font-size: 1.8rem;
+      color: #ff00ff;
+      text-shadow: 0 0 15px #ff00ff;
+      z-index: 9999;
       user-select: none;
     }
 
-    /* Duży przycisk LET'S HACK */
     #start-button {
       margin-top: 30px;
-      padding: 20px 60px;
-      font-size: 2rem;
+      padding: 20px 80px;
+      font-size: 2.4rem;
       font-weight: bold;
-      background: linear-gradient(90deg, #0ff, #08f);
+      background: linear-gradient(90deg, #ff00ff, #cc00cc);
       border: none;
-      border-radius: 12px;
+      border-radius: 15px;
       color: #000;
-      box-shadow: 0 0 15px #0ff, 0 0 30px #08f;
+      box-shadow: 0 0 30px #ff00ff, 0 0 50px #cc00cc;
+      cursor: pointer;
       transition: background 0.3s ease;
     }
     #start-button:hover {
-      background: linear-gradient(90deg, #08f, #0ff);
-      box-shadow: 0 0 25px #0ff, 0 0 45px #0ffbb;
+      background: linear-gradient(90deg, #cc00cc, #ff00ff);
+      box-shadow: 0 0 45px #ff00ff, 0 0 60px #ff33ff;
     }
     #start-button:active {
       transform: scale(0.95);
@@ -107,101 +167,177 @@
   </style>
 </head>
 <body>
+  <h1>== CYBER-HACK INTERFACE ==</h1>
 
-  <!-- Ekran startowy z przyciskiem -->
+  <div id="game-container" style="visibility: hidden;">
+    <div id="progress-bar-container">
+      <div id="progress-bar"></div>
+    </div>
+    <div id="terminal"></div>
+    <div id="result"></div>
+  </div>
+
+  <!-- Ekran startowy -->
   <div id="start-overlay">
-    Kliknij, aby włączyć dźwięk i rozpocząć bootowanie
+    Kliknij przycisk, aby włączyć dźwięk i rozpocząć hackowanie
     <button id="start-button">LET'S HACK</button>
   </div>
 
-  <!-- Kontener terminala -->
-  <div id="boot-container">
-    <div id="boot-text"></div>
-  </div>
-
   <script>
-    const bootLines = [
-      "[BOOT SEQUENCE INITIATED...]",
-      "→ Checking memory banks...",
-      "→ Loading hackOS kernel [v3.88.77-CYBER]",
-      "→ Mounting partitions /root /cyberspace /neural",
-      "→ Scanning input ports... FOUND 3x TERMINALS",
-      "→ Injecting memory exploit...",
-      "→ Decrypting Uplink Key...",
-      "→ Firewall override: SUCCESS",
-      "→ Establishing session link...",
-      "[ACCESS CHANNEL OPENED]",
-      "LOGIN: operator_01",
-      "AUTH: ********* OK",
-      ">> SYSTEM ONLINE"
-    ];
-
-    const bootText = document.getElementById("boot-text");
-    const container = document.getElementById("boot-container");
+    const terminal = document.getElementById("terminal");
+    const result = document.getElementById("result");
+    const progressBar = document.getElementById("progress-bar");
+    const gameContainer = document.getElementById("game-container");
     const startOverlay = document.getElementById("start-overlay");
     const startButton = document.getElementById("start-button");
 
-    // AudioContext do beepów
-    const audio = new AudioContext();
-    function beep(freq = 220, dur = 0.05, vol = 0.3) {
-      const osc = audio.createOscillator();
-      const gain = audio.createGain();
-      osc.type = "square";
-      osc.frequency.value = freq;
-      gain.gain.value = vol;
-      osc.connect(gain);
-      gain.connect(audio.destination);
-      osc.start();
-      osc.stop(audio.currentTime + dur);
+    // AudioContext do dźwięków
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Lista słów
+    const WORD_LIST = [
+      "VECTOR", "SYSTEM", "BREACH", "CYBERS", "ACCESS", "PROTON", "UPLOAD",
+      "ZER0ED", "QUANTA", "STATIC", "OUTPUT", "MATRIX", "VIRUSX", "GAMBLE", "PYTHON", "FISSION"
+    ];
+
+    let password = "";
+    let attempts = 4;
+    let clicked = false;
+    let timer = null;
+    let totalTime = 30;
+    let timeLeft = totalTime;
+
+    // Dźwięk "beep"
+    function beep(freq = 440, duration = 0.05, volume = 0.3) {
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + duration);
     }
 
-    function glitchLine(line, callback) {
-      let i = 0;
-      const interval = setInterval(() => {
-        let fakeChar = String.fromCharCode(33 + Math.random() * 94);
-        const glitched = line.substring(0, i) + fakeChar.repeat(line.length - i);
-        // Usuwamy poprzednią linijkę i dopisujemy glitched
-        let lines = bootText.textContent.trimEnd().split('\n');
-        if(lines.length > 0) lines.pop();
-        lines.push(glitched);
-        bootText.textContent = lines.join('\n');
-        beep(200 + Math.random() * 200, 0.02);
-        i++;
-        if (i > line.length) {
-          clearInterval(interval);
-          bootText.textContent += "\n";
-          if (callback) callback();
-          container.scrollTop = container.scrollHeight;
+    function startHack() {
+      terminal.innerHTML = "";
+      result.innerText = "";
+      clicked = false;
+      attempts = 4;
+      timeLeft = totalTime;
+      progressBar.style.width = "100%";
+
+      password = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+      const candidates = shuffle([...WORD_LIST]).slice(0, 7);
+      if (!candidates.includes(password)) {
+        candidates[Math.floor(Math.random() * candidates.length)] = password;
+      }
+
+      for (let i = 0; i < 18; i++) {
+        const word = candidates[Math.floor(Math.random() * candidates.length)];
+        const line = injectWord(randomLine(), word);
+        const div = document.createElement("div");
+        div.classList.add("line");
+        div.innerText = line;
+        div.addEventListener("click", () => checkLine(div, line));
+        terminal.appendChild(div);
+      }
+
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft--;
+        progressBar.style.width = `${(timeLeft / totalTime) * 100}%`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          endGame(false, ">>> CZAS MINĄŁ! <<<");
         }
-      }, 15 + Math.random() * 30);
+      }, 1000);
     }
 
-    function typeNextLine(index = 0) {
-      if (index >= bootLines.length) {
-        setTimeout(() => {
-          // Po zakończeniu można zrobić coś
-        }, 1000);
+    function injectWord(base, word) {
+      const pos = Math.floor(Math.random() * (base.length - word.length));
+      return base.slice(0, pos) + word + base.slice(pos + word.length);
+    }
+
+    function randomLine() {
+      const chars = "!@#$%^&*()_+-={}[]<>|0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let result = "";
+      for (let i = 0; i < 20; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    function checkLine(div, line) {
+      if (clicked) return;
+
+      clicked = true;
+      attempts--;
+
+      if (line.includes(password)) {
+        div.classList.add("clicked", "success");
+        endGame(true, ">>> HACK UDANY! <<<");
+        beep(880, 0.1, 0.5);
         return;
       }
-      if (index % 4 === 0) {
-        container.classList.add("flash");
-        setTimeout(() => container.classList.remove("flash"), 100);
+
+      const similarity = calcSimilarity(line, password);
+      div.classList.add("clicked");
+      if (similarity === 0) {
+        div.classList.add("failure");
+        beep(220, 0.2, 0.4);
+      } else {
+        div.classList.add("wrong");
+        beep(440, 0.1, 0.3);
+        result.innerText = `Podobieństwo: ${similarity} / ${password.length}`;
       }
-      glitchLine(bootLines[index], () => {
-        setTimeout(() => typeNextLine(index + 1), 150 + Math.random() * 300);
-      });
+
+      if (attempts <= 0) {
+        endGame(false, ">>> WYCZERPANO PRÓBY <<<");
+      }
+
+      setTimeout(() => {
+        clicked = false;
+      }, 500);
     }
 
-    // Start po kliknięciu przycisku
-    startButton.addEventListener("click", () => {
-      if (audio.state !== "running") {
-        audio.resume();
+    function calcSimilarity(a, b) {
+      let count = 0;
+      for (let i = 0; i < Math.min(a.length, b.length); i++) {
+        if (a[i] === b[i]) count++;
       }
-      startOverlay.style.display = "none";
-      container.style.display = "block";
-      typeNextLine();
-    });
+      return count;
+    }
 
+    function endGame(success, message) {
+      result.innerText = message;
+      clearInterval(timer);
+      [...terminal.children].forEach(div => div.style.pointerEvents = "none");
+    }
+
+    // Fisher-Yates shuffle
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Start button handler: aktywuje audio i startuje minigierkę
+    startButton.onclick = async () => {
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
+      beep(660, 0.15, 0.4);
+      startOverlay.style.display = 'none';
+      gameContainer.style.visibility = 'visible';
+      startHack();
+    };
   </script>
 </body>
 </html>
