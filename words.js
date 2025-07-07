@@ -13,7 +13,7 @@ const words6 = [
   "kaktus",
   "toksyn",
   "radioz",
-  "ruina ",
+  "ruinka",
   "trupak",
   "nukler",
   "gruzow",
