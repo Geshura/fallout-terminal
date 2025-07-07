@@ -1,55 +1,87 @@
-const wordListEl = document.getElementById("word-list");
-const statusEl = document.getElementById("status");
-const terminalEl = document.getElementById("terminal");
+const terminalText = document.getElementById("terminal-text");
+const wordGrid = document.getElementById("word-grid");
 
 let haslo = "";
 let probyPozostale = 5;
+let odkryteLitery = []; // tablica booleanów, które litery ujawnione
 
+// Uruchom grę
 function startGame() {
   haslo = words6[Math.floor(Math.random() * words6.length)].toUpperCase();
   probyPozostale = 5;
-  statusEl.textContent = "";
-  
-  // Wyświetl aktualne próby
-  updateAttempts();
+  odkryteLitery = new Array(haslo.length).fill(false);
 
-  // Wyczyść listę i wygeneruj nowe słowa jako przyciski
-  wordListEl.innerHTML = "";
+  // Wyświetl tekst powitalny i stan początkowy
+  wypiszTerminal(buildDisplayText());
+  buildWordGrid();
+  updateAttempts();
+}
+
+// Generuje wyświetlany tekst z podkreśleniami i odkrytymi literami
+function buildDisplayText() {
+  let line = "HASŁO: ";
+  for(let i = 0; i < haslo.length; i++) {
+    line += odkryteLitery[i] ? haslo[i] : "_";
+    line += " ";
+  }
+  return line + "\n\nPRÓBY POZOSTAŁE: " + probyPozostale;
+}
+
+// Wyświetla tekst w terminalu
+function wypiszTerminal(text) {
+  terminalText.textContent = text;
+}
+
+// Buduje siatkę przycisków z słowami
+function buildWordGrid() {
+  wordGrid.innerHTML = "";
   words6.forEach(w => {
     const btn = document.createElement("button");
     btn.textContent = w.toUpperCase();
-    btn.classList.add("word-btn");
-    btn.addEventListener("click", () => kliknietoSlowo(btn, w));
-    wordListEl.appendChild(btn);
+    btn.className = "word-btn";
+    btn.onclick = () => handleWordClick(btn, w);
+    wordGrid.appendChild(btn);
   });
 }
 
-function kliknietoSlowo(button, slowo) {
+// Obsługuje kliknięcie w słowo
+function handleWordClick(button, word) {
   if(probyPozostale <= 0 || button.disabled) return;
 
-  if(slowo.toUpperCase() === haslo) {
-    statusEl.textContent = `>> ${haslo} - POPRAWNE HASŁO! WŁAMANIE POWODZENIE. <<`;
-    disableButtons();
-  } else {
-    probyPozostale--;
-    statusEl.textContent = `>> ${slowo.toUpperCase()} - BŁĘDNE HASŁO. SPRÓBUJ PONOWNIE. <<`;
-    button.disabled = true;
-    updateAttempts();
-    if(probyPozostale === 0) {
-      statusEl.textContent = `>> BRAK PRÓB! HASŁO TO: ${haslo} <<`;
-      disableButtons();
+  const guessedWord = word.toUpperCase();
+  if(guessedWord === haslo) {
+    // Zgadnięto hasło
+    odkryteLitery = odkryteLitery.map(() => true);
+    wypiszTerminal(buildDisplayText() + "\n\nWŁAMANIE POWODZENIE! HASŁO: " + haslo);
+    disableAllButtons();
+    return;
+  }
+
+  // Sprawdź ile liter zgadza się na swoich miejscach (jak w Fallout)
+  let correctLetters = 0;
+  for(let i = 0; i < haslo.length; i++) {
+    if(haslo[i] === guessedWord[i]) {
+      odkryteLitery[i] = true; // ujawnij te litery
+      correctLetters++;
     }
+  }
+
+  probyPozostale--;
+  wypiszTerminal(buildDisplayText() + `\n\nBŁĘDNE HASŁO! Trafione litery: ${correctLetters}`);
+
+  button.disabled = true;
+
+  updateAttempts();
+
+  if(probyPozostale <= 0) {
+    wypiszTerminal(buildDisplayText() + "\n\nBRAK PRÓB! HASŁO TO: " + haslo);
+    disableAllButtons();
   }
 }
 
 function updateAttempts() {
-  terminalEl.textContent = `Wybierz słowo, aby włamać się do systemu:\n\nPRÓBY POZOSTAŁE: ${probyPozostale}\n`;
+  // Już aktualizujemy w buildDisplayText, ale można tu rozbudować (np. dźwięk)
 }
 
-function disableButtons() {
-  const buttons = wordListEl.querySelectorAll("button");
-  buttons.forEach(b => b.disabled = true);
-}
-
-// Startujemy grę po załadowaniu
-startGame();
+function disableAllButtons() {
+  const buttons = wordGrid.querySelectorAll
