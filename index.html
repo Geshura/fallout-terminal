@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>TERMINAL ROBCO INDUSTRIES</title>
 
-<!-- Google Fonts: Orbitron -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
+<!-- Google Fonts: Share Tech Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
 
 <style>
-  /* Reset i bazowe style */
   * {
     box-sizing: border-box;
   }
@@ -18,9 +17,9 @@
     margin: 0;
     background-color: #000;
     color: #00ff00;
-    font-family: 'Orbitron', monospace, Courier, monospace;
+    font-family: 'Share Tech Mono', monospace, Courier, monospace;
     font-weight: 400;
-    font-size: clamp(12px, 1.5vw, 18px);
+    font-size: clamp(14px, 1.8vw, 20px);
     line-height: 1.4;
     padding: 1rem 2rem;
     user-select: none;
@@ -29,17 +28,22 @@
   }
 
   #terminal {
-    max-width: 700px;
-    width: 100%;
+    max-width: 90vw;
+    width: 90vw;
+    height: 80vh;
     white-space: pre-wrap;
     text-shadow:
       0 0 5px #00ff00,
       0 0 10px #00ff00,
       0 0 20px #00ff00,
       0 0 30px #00ff00;
+    overflow-y: auto;
+    padding: 1rem;
+    border: 2px solid #00ff00;
+    border-radius: 6px;
+    background-color: #000;
   }
 
-  /* Efekt migotania CRT */
   @keyframes crt-flicker {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.85; }
@@ -49,7 +53,6 @@
     animation: crt-flicker 0.15s infinite;
   }
 
-  /* Styl inputa */
   .input-line {
     display: flex;
     margin-top: 0.3rem;
@@ -66,7 +69,7 @@
     color: #00ff00;
     font-family: inherit;
     font-weight: 400;
-    font-size: clamp(12px, 1.5vw, 18px);
+    font-size: clamp(14px, 1.8vw, 20px);
     flex-grow: 1;
     caret-color: #00ff00;
   }
@@ -83,14 +86,13 @@
     const terminal = document.getElementById('terminal');
 
     const slowWords = ["SKRZYNIA", "PRÓBA", "MOCNY", "WAZA", "TAJEMNICA", "ZASILANIE", "KLUCZ", "PAMIĘĆ"];
-    let words = [...slowWords]; // kopiujemy
+    let words = [...slowWords];
 
     const haslo = words[Math.floor(Math.random() * words.length)];
     const maxProby = 4;
     let probyPozostale = maxProby;
     let zablokowany = false;
 
-    // Funkcja generuje losowy ciąg znaków
     function losoweZnaki(dlugosc) {
       const znaki = "!@#$%^&*()_+=-{}[]:;<>?/\\|";
       let wynik = "";
@@ -100,7 +102,6 @@
       return wynik;
     }
 
-    // Buduje "dump pamięci" z adresami i wstawkami słów
     function budujPamiec() {
       let output = "TERMINAL ROBCO INDUSTRIES (TM)\nWPROWADŹ HASŁO\n\n";
 
@@ -131,7 +132,6 @@
       return output;
     }
 
-    // Oblicza likeness – ile liter zgadza się na tych samych pozycjach
     function likeness(odgadniete, poprawne) {
       odgadniete = odgadniete.toUpperCase();
       let licznik = 0;
@@ -141,13 +141,11 @@
       return licznik;
     }
 
-    // Aktualizuje terminal dopisując tekst
     function dodajTekst(tekst) {
       terminal.textContent += tekst + "\n";
       terminal.scrollTop = terminal.scrollHeight;
     }
 
-    // Tworzy input do wpisania hasła
     function stworzInput() {
       if(zablokowany) return;
 
@@ -194,7 +192,6 @@
       input.focus();
     }
 
-    // Inicjalizacja terminala
     terminal.textContent = budujPamiec();
     stworzInput();
   </script>
