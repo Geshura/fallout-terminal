@@ -1,298 +1,139 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>System Hackowania</title>
-  <!-- Cyberpunkowe fonty -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Share+Tech+Mono&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Cyberpunk Boot Intro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      color: #00ff00;
+      font-family: 'Share Tech Mono', monospace;
+      height: 100%;
+      overflow: hidden;
+    }
 
-html, body {
-  height: 100%;
-  background: black;
-  color: #00ffcc;
-  font-family: 'Share Tech Mono', monospace;
-  overflow: hidden;
-}
+    #boot-screen {
+      position: fixed;
+      inset: 0;
+      background: black;
+      padding: 40px;
+      color: #00ff00;
+      font-size: 1rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      z-index: 9999;
+    }
 
-/* 🌌 Animowane tło */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at center, rgba(0,255,255,0.1) 0%, transparent 70%),
-              repeating-linear-gradient(0deg, rgba(0,255,255,0.05), rgba(0,255,255,0.05) 1px, transparent 1px, transparent 20px),
-              repeating-linear-gradient(90deg, rgba(0,255,255,0.05), rgba(0,255,255,0.05) 1px, transparent 1px, transparent 20px);
-  animation: moveGrid 60s linear infinite;
-  z-index: -1;
-}
+    #boot-text::after {
+      content: ' █';
+      animation: blink 1s step-start infinite;
+    }
 
-@keyframes moveGrid {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(-50%, -50%); }
-}
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
 
-/* Intro bootowania */
-#boot-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: black;
-  color: #00ff00;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 1rem;
-  padding: 30px;
-  overflow: hidden;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: start;
-  flex-direction: column;
-}
+    .flash {
+      animation: flashscreen 0.1s;
+    }
 
-#boot-text {
-  white-space: pre-wrap;
-  line-height: 1.4;
-}
-
-h1 {
-  font-family: 'Orbitron', sans-serif;
-  text-align: center;
-  padding: 20px;
-  color: #ff00ff;
-  text-shadow: 0 0 10px #ff00ff;
-}
-
-#game-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
-  gap: 10px;
-  min-height: 80%;
-}
-
-button {
-  background: none;
-  color: #ff00ff;
-  border: 2px solid #ff00ff;
-  padding: 10px 30px;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.8em;
-  cursor: pointer;
-  margin: 10px;
-  box-shadow: 0 0 10px #ff00ff;
-  transition: 0.2s ease;
-}
-
-button:hover {
-  background-color: #ff00ff;
-  color: black;
-}
-
-#terminal {
-  background-color: rgba(0, 0, 0, 0.85);
-  border: 2px solid #00ffff;
-  padding: 20px;
-  width: fit-content;
-  max-width: 95vw;
-  overflow-y: auto;
-  box-shadow: 0 0 15px #00ffff;
-  font-size: 1em;
-}
-
-.line {
-  cursor: pointer;
-  padding: 4px 10px;
-  white-space: nowrap;
-  color: #00ffcc;
-  transition: 0.2s;
-}
-
-.line:hover {
-  background-color: rgba(0, 255, 255, 0.1);
-  color: #ffffff;
-}
-
-.clicked {
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-.clicked.success {
-  background-color: #00ff66;
-  color: black;
-  font-weight: bold;
-}
-
-.clicked.failure {
-  background-color: #ff0000;
-  color: white;
-}
-
-.clicked.wrong {
-  background-color: #ffaa00;
-  color: black;
-}
-
-#result {
-  font-weight: bold;
-  font-size: 1.2em;
-  text-align: center;
-  margin-top: 10px;
-}
-
-#progress-bar-container {
-  width: 90%;
-  height: 20px;
-  background-color: #222;
-  border: 2px solid #00ffff;
-  margin-top: 10px;
-  box-shadow: inset 0 0 5px #00ffff;
-}
-
-#progress-bar {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, #00ffff, #00ffcc);
-  transition: width 1s linear;
-}
-
+    @keyframes flashscreen {
+      0% { background-color: #00ff00; }
+      100% { background-color: black; }
+    }
   </style>
 </head>
 <body>
-
-  <!-- Intro z bootowaniem -->
   <div id="boot-screen">
-    <pre id="boot-text"></pre>
-  </div>
-
-  <h1>🧠 HACKNET ACCESS PANEL</h1>
-
-  <div id="game-container">
-    <button onclick="startHack()">START</button>
-    <div id="terminal"></div>
-    <div id="progress-bar-container">
-      <div id="progress-bar"></div>
-    </div>
-    <div id="result"></div>
+    <div id="boot-text"></div>
   </div>
 
   <script>
-const linesCount = 16;
-const password = generatePassword();
-let failedAttempts = 0;
-let progress = 100;
-let gameOver = false;
+    const bootLines = [
+      "[BOOT SEQUENCE INITIATED...]",
+      "→ Checking memory banks...",
+      "→ Loading hackOS kernel [v3.88.77-CYBER]",
+      "→ Mounting partitions /root /cyberspace /neural",
+      "→ Scanning input ports... FOUND 3x TERMINALS",
+      "→ Injecting memory exploit...",
+      "→ Decrypting Uplink Key...",
+      "→ Firewall override: SUCCESS",
+      "→ Establishing session link...",
+      "[ACCESS CHANNEL OPENED]",
+      "LOGIN: operator_01",
+      "AUTH: ********* OK",
+      ">> SYSTEM ONLINE"
+    ];
 
-function generateLine() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-  let str = "";
-  for (let i = 0; i < 12; i++) {
-    str += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return str;
-}
+    const bootText = document.getElementById("boot-text");
+    const screen = document.getElementById("boot-screen");
 
-function generatePassword() {
-  return "ACCESS_GRANTED";
-}
+    const audio = new AudioContext();
+    function beep(freq = 220, dur = 0.05, vol = 0.3) {
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = "square";
+      osc.frequency.value = freq;
+      gain.gain.value = vol;
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start();
+      osc.stop(audio.currentTime + dur);
+    }
 
-function startHack() {
-  const terminal = document.getElementById("terminal");
-  const result = document.getElementById("result");
-  terminal.innerHTML = "";
-  result.textContent = "";
-  failedAttempts = 0;
-  progress = 100;
-  gameOver = false;
-  updateProgress();
-
-  const passwordIndex = Math.floor(Math.random() * linesCount);
-
-  for (let i = 0; i < linesCount; i++) {
-    const line = document.createElement("div");
-    line.classList.add("line");
-    line.textContent = i === passwordIndex ? password : generateLine();
-    line.addEventListener("click", function () {
-      if (gameOver || this.classList.contains("clicked")) return;
-
-      if (this.textContent === password) {
-        this.classList.add("clicked", "success");
-        result.textContent = "✔️ HACKING SUCCESSFUL";
-        gameOver = true;
-      } else {
-        failedAttempts++;
-        this.classList.add("clicked", failedAttempts === 3 ? "failure" : "wrong");
-        if (failedAttempts >= 3) {
-          result.textContent = "❌ SYSTEM LOCKED";
-          gameOver = true;
+    function glitchLine(line, callback) {
+      let glitched = "";
+      let i = 0;
+      const interval = setInterval(() => {
+        let fakeChar = String.fromCharCode(33 + Math.random() * 94);
+        glitched = line.substring(0, i) + fakeChar.repeat(line.length - i);
+        bootText.textContent += "\r" + glitched;
+        beep(200 + Math.random() * 200, 0.02);
+        i++;
+        if (i > line.length) {
+          clearInterval(interval);
+          bootText.textContent += "\n";
+          if (callback) callback();
         }
-        progress -= 33;
-        updateProgress();
+      }, 15 + Math.random() * 30);
+    }
+
+    function typeNextLine(index = 0) {
+      if (index >= bootLines.length) {
+        setTimeout(() => {
+          screen.style.display = 'none';
+        }, 1000);
+        return;
       }
+
+      if (index % 4 === 0) {
+        screen.classList.add("flash");
+        setTimeout(() => screen.classList.remove("flash"), 100);
+      }
+
+      glitchLine(bootLines[index], () => {
+        setTimeout(() => typeNextLine(index + 1), 150 + Math.random() * 300);
+      });
+    }
+
+    window.addEventListener("load", () => {
+      // Automatyczne wznowienie AudioContext po kliknięciu
+      document.body.addEventListener("click", () => {
+        if (audio.state !== "running") {
+          audio.resume();
+        }
+      }, { once: true });
+
+      setTimeout(() => typeNextLine(), 500);
     });
-    terminal.appendChild(line);
-  }
-}
 
-function updateProgress() {
-  const progressBar = document.getElementById("progress-bar");
-  progressBar.style.width = progress + "%";
-}
-
-// Boot intro
-const bootLines = [
-  "[SYSTEM BOOTING...]",
-  "Initializing core protocols...",
-  "Loading memory banks...",
-  "Mounting /dev/hackOS...",
-  "Establishing neural uplink...",
-  "Checking system integrity... OK",
-  "Decrypting firewall keys...",
-  "Bypassing external surveillance...",
-  "Starting user interface...",
-  "LOGIN: GRANTED",
-  ">> Welcome, Operator_001"
-];
-
-const bootTextEl = document.getElementById("boot-text");
-const bootScreenEl = document.getElementById("boot-screen");
-
-let lineIndex = 0;
-
-function typeBootLine() {
-  if (lineIndex < bootLines.length) {
-    bootTextEl.textContent += bootLines[lineIndex] + "\n";
-    lineIndex++;
-    setTimeout(typeBootLine, 400);
-  } else {
-    setTimeout(() => {
-      bootScreenEl.style.display = "none";
-    }, 1000);
-  }
-}
-
-bootScreenEl.addEventListener("click", () => {
-  bootScreenEl.style.display = "none";
-});
-
-window.addEventListener("load", () => {
-  typeBootLine();
-});
-
+    // Kliknięcie pomija intro
+    screen.addEventListener("click", () => {
+      screen.style.display = 'none';
+    });
   </script>
-
 </body>
 </html>
