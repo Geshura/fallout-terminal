@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fallout Terminal Hack</title>
+  <style>
+    body {
+      background-color: black;
+      color: #00FF00;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      margin: 0;
+    }
+
+    #terminal {
+      white-space: pre;
+      font-size: 16px;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      50% { background-color: #00FF00; color: #00FF00; }
+      100% { background-color: transparent; color: transparent; }
+    }
+
+    input {
+      background: none;
+      border: none;
+      color: #00FF00;
+      font-family: inherit;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .prompt {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal">
+    <div>ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL</div>
+    <div>ENTER PASSWORD NOW</div>
+    <br>
+    <div id="memory-dump"></div>
+    <br>
+    <div id="output"></div>
+    <div class="prompt">
+      <span>&gt; </span><input id="userInput" autocomplete="off" />
+    </div>
+  </div>
+
+  <script>
+    const words = ["VAULT", "CABLE", "POWER", "WASTE", "TRIAL", "CRATE", "STONE", "BONDS"];
+    const correct = words[Math.floor(Math.random() * words.length)];
+    const attempts = 4;
+    let remaining = attempts;
+
+    const memoryDump = document.getElementById('memory-dump');
+    const output = document.getElementById('output');
+    const input = document.getElementById('userInput');
+
+    function generateMemoryDump() {
+      let dump = "";
+      const symbols = "!@#$%^&*()-_=+[]{}|;:',.<>?/\\";
+      for (let i = 0; i < 16; i++) {
+        let line = "0x" + (i * 10).toString(16).padStart(4, "0").toUpperCase() + " ";
+        for (let j = 0; j < 2; j++) {
+          line += randomChars(12) + " ";
+        }
+        dump += line + "\n";
+      }
+      memoryDump.textContent = dump;
+    }
+
+    function randomChars(length) {
+      const pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "!@#$%^&*";
+      let str = "";
+      for (let i = 0; i < length; i++) {
+        str += pool.charAt(Math.floor(Math.random() * pool.length));
+      }
+      return str;
+    }
+
+    function likeness(word1, word2) {
+      let match = 0;
+      for (let i = 0; i < word1.length; i++) {
+        if (word1[i] === word2[i]) match++;
+      }
+      return match;
+    }
+
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        const guess = input.value.toUpperCase();
+        input.value = "";
+        if (!words.includes(guess)) {
+          output.innerHTML += `> ${guess}\nINVALID WORD\n`;
+          return;
+        }
+        if (guess === correct) {
+          output.innerHTML += `> ${guess}\nACCESS GRANTED\n`;
+          input.disabled = true;
+        } else {
+          remaining--;
+          const like = likeness(guess, correct);
+          output.innerHTML += `> ${guess}\nEntry Denied. Likeness = ${like}\n`;
+          if (remaining <= 0) {
+            output.innerHTML += `TERMINAL LOCKED. PLEASE CONTACT AN ADMINISTRATOR.\n`;
+            input.disabled = true;
+          }
+        }
+        output.scrollTop = output.scrollHeight;
+      }
+    });
+
+    generateMemoryDump();
+  </script>
+</body>
+</html>
