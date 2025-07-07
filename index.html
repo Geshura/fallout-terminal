@@ -2,20 +2,147 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Fallout 3 - Symulator włamania</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="style.css" />
+<title>Hackowanie Fallout 3 - CodeBreaker</title>
+<style>
+  body { font-family: monospace; background:#000; color:#0f0; padding:20px; }
+  textarea { width: 300px; height: 120px; background:#111; color:#0f0; border:1px solid #0f0; }
+  select, input, button { font-family: monospace; margin: 5px 0; background:#111; color:#0f0; border:1px solid #0f0; }
+  #result { margin-top: 10px; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Terminal Bractwa Stali</h1>
-    <div id="attempts">Próby: 5</div>
-    <pre id="terminal"></pre>
-    <div id="message"></div>
-  </div>
 
-<script src="words.js"></script>
-<script src="script.js"></script>
+<h2>CodeBreaker - Fallout 3 style</h2>
+<label>Wpisz słowa (po 1 w linii):</label><br/>
+<textarea id="wordsArea">BRONIE
+RADIO
+PIECAR
+SCHRON
+WIRUSY
+POZARY
+LUDZIE
+WROGOW
+KODOWA
+ZLODZK
+OBRONA
+</textarea><br/>
+
+<button id="generateWords">Generate Words</button><br/>
+
+<label>Wybierz słowo:</label><br/>
+<select id="wordSelect" size="5" style="width:150px"></select><br/>
+
+<label>Liczba dopasowanych liter (Likeness):</label><br/>
+<input id="correctInput" type="number" min="0" max="6" /><br/>
+
+<button id="addRule">Add Rule</button>
+
+<div id="result"></div>
+
+<script>
+  // Klasa CodeBreaker - uproszczona wersja
+  class CodeBreaker {
+    constructor() {
+      this.words = [];
+      this.rules = []; // {word: string, likeness: number}
+      this.possibleWords = [];
+    }
+
+    setWords(words) {
+      this.words = words.map(w => w.toUpperCase());
+      this.possibleWords = [...this.words];
+      this.rules = [];
+    }
+
+    // Zlicza ile liter na tych samych pozycjach się zgadza
+    static likeness(w1, w2) {
+      let count = 0;
+      for(let i=0; i<w1.length; i++) {
+        if(w1[i] === w2[i]) count++;
+      }
+      return count;
+    }
+
+    addRule(word, likeness) {
+      word = word.toUpperCase();
+      this.rules.push({word, likeness});
+      this.filterWords();
+    }
+
+    // Filtruj listę możliwych słów na podstawie reguł
+    filterWords() {
+      this.possibleWords = this.possibleWords.filter(candidate => {
+        return this.rules.every(rule => {
+          return CodeBreaker.likeness(candidate, rule.word) === rule.likeness;
+        });
+      });
+    }
+
+    // Wybierz "najlepsze" słowo (tu: pierwsze z listy)
+    bestGuess() {
+      if(this.possibleWords.length === 0) return "Brak pasujących słów";
+      return this.possibleWords[0];
+    }
+
+    getPossibleWords() {
+      return this.possibleWords;
+    }
+  }
+
+  // --- Interfejs ---
+
+  const wordsArea = document.getElementById("wordsArea");
+  const generateBtn = document.getElementById("generateWords");
+  const wordSelect = document.getElementById("wordSelect");
+  const correctInput = document.getElementById("correctInput");
+  const addRuleBtn = document.getElementById("addRule");
+  const resultDiv = document.getElementById("result");
+
+  const cb = new CodeBreaker();
+
+  function updateWordSelect(words) {
+    wordSelect.innerHTML = "";
+    for(let w of words) {
+      let option = document.createElement("option");
+      option.value = w;
+      option.textContent = w;
+      wordSelect.appendChild(option);
+    }
+  }
+
+  generateBtn.addEventListener("click", () => {
+    const words = wordsArea.value
+      .split("\n")
+      .map(w => w.trim().toUpperCase())
+      .filter(w => w.length > 0);
+    cb.setWords(words);
+    updateWordSelect(cb.getPossibleWords());
+    resultDiv.textContent = "Best try: " + cb.bestGuess();
+    correctInput.value = "";
+  });
+
+  addRuleBtn.addEventListener("click", () => {
+    const selectedWord = wordSelect.value;
+    const likeness = parseInt(correctInput.value, 10);
+
+    if(!selectedWord) {
+      alert("Wybierz słowo z listy");
+      return;
+    }
+    if(isNaN(likeness) || likeness < 0) {
+      alert("Wpisz poprawną liczbę dopasowanych liter");
+      return;
+    }
+
+    cb.addRule(selectedWord, likeness);
+    updateWordSelect(cb.getPossibleWords());
+    resultDiv.textContent = `Best try: ${cb.bestGuess()} | Possible words: ${cb.getPossibleWords().length}`;
+    correctInput.value = "";
+  });
+
+  // Inicjalne wygenerowanie listy
+  generateBtn.click();
+
+</script>
 </body>
 </html>
