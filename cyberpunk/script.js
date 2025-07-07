@@ -1,11 +1,85 @@
+const bootLines = [
+  "[BOOT SEQUENCE INITIATED...]",
+  "→ Checking memory banks...",
+  "→ Loading hackOS kernel [v3.88.77-CYBER]",
+  "→ Mounting partitions /root /cyberspace /neural",
+  "→ Scanning input ports... FOUND 3x TERMINALS",
+  "→ Injecting memory exploit...",
+  "→ Decrypting Uplink Key...",
+  "→ Firewall override: SUCCESS",
+  "→ Establishing session link...",
+  "[ACCESS CHANNEL OPENED]",
+  "LOGIN: operator_01",
+  "AUTH: ********* OK",
+  ">> SYSTEM ONLINE"
+];
+
+const bootText = document.getElementById("boot-text");
+const container = document.getElementById("boot-container");
+const startOverlay = document.getElementById("start-overlay");
+const startButton = document.getElementById("start-button");
+const gameContainer = document.getElementById("game-container");
+const mainTitle = document.getElementById("main-title");
+
+// Web Audio API
+const audio = new AudioContext();
+function beep(freq = 220, dur = 0.05, vol = 0.3) {
+  const osc = audio.createOscillator();
+  const gain = audio.createGain();
+  osc.type = "square";
+  osc.frequency.value = freq;
+  gain.gain.value = vol;
+  osc.connect(gain);
+  gain.connect(audio.destination);
+  osc.start();
+  osc.stop(audio.currentTime + dur);
+}
+
+function glitchLine(line, callback) {
+  let i = 0;
+  const interval = setInterval(() => {
+    let fakeChar = String.fromCharCode(33 + Math.random() * 94);
+    const glitched = line.substring(0, i) + fakeChar.repeat(line.length - i);
+    let lines = bootText.textContent.trimEnd().split('\n');
+    if(lines.length > 0) lines.pop();
+    lines.push(glitched);
+    bootText.textContent = lines.join('\n');
+    beep(200 + Math.random() * 200, 0.02);
+    i++;
+    if (i > line.length) {
+      clearInterval(interval);
+      bootText.textContent += "\n";
+      if (callback) callback();
+      container.scrollTop = container.scrollHeight;
+    }
+  }, 15 + Math.random() * 30);
+}
+
+function typeNextLine(index = 0) {
+  if (index >= bootLines.length) {
+    setTimeout(() => {
+      container.style.display = "none";
+      mainTitle.style.display = "block";
+      gameContainer.style.visibility = "visible";
+    }, 1000);
+    return;
+  }
+  glitchLine(bootLines[index], () => {
+    setTimeout(() => typeNextLine(index + 1), 150 + Math.random() * 300);
+  });
+}
+
+startButton.addEventListener("click", () => {
+  if (audio.state !== "running") audio.resume();
+  startOverlay.style.display = "none";
+  container.style.display = "block";
+  typeNextLine();
+});
+
+// === GAME CODE (z gra.html) ===
 const terminal = document.getElementById("terminal");
 const result = document.getElementById("result");
 const progressBar = document.getElementById("progress-bar");
-const gameContainer = document.getElementById("game-container");
-const startOverlay = document.getElementById("start-overlay");
-const introText = document.getElementById("intro-text");
-const startButton = document.getElementById("start-button");
-
 const WORD_LIST = [
   "VECTOR", "SYSTEM", "BREACH", "CYBERS", "ACCESS", "PROTON", "UPLOAD",
   "ZER0ED", "QUANTA", "STATIC", "OUTPUT", "MATRIX", "VIRUSX", "GAMBLE", "PYTHON", "FISSION"
@@ -17,44 +91,6 @@ let clicked = false;
 let timer = null;
 let totalTime = 30;
 let timeLeft = totalTime;
-
-function blinkText(element, interval = 600) {
-  let visible = true;
-  return setInterval(() => {
-    element.style.opacity = visible ? '1' : '0.1';
-    visible = !visible;
-  }, interval);
-}
-
-function pulseButton(button) {
-  button.animate(
-    [
-      { boxShadow: '0 0 10px #ff00ff, 0 0 20px #ff00ff' },
-      { boxShadow: '0 0 30px #ff33ff, 0 0 60px #ff33ff' },
-      { boxShadow: '0 0 10px #ff00ff, 0 0 20px #ff00ff' }
-    ],
-    {
-      duration: 1500,
-      iterations: Infinity,
-    }
-  );
-}
-
-let blinkInterval = blinkText(introText);
-setTimeout(() => {
-  clearInterval(blinkInterval);
-  introText.style.opacity = '1';
-  introText.style.color = '#ff99ff';
-  introText.style.textShadow = '0 0 30px #ff99ff';
-
-  startButton.style.display = 'inline-block';
-  pulseButton(startButton);
-}, 3000);
-
-startButton.onclick = () => {
-  startOverlay.style.display = "none";
-  gameContainer.style.visibility = "visible";
-};
 
 function startHack() {
   terminal.innerHTML = "";
@@ -94,7 +130,6 @@ function startHack() {
 function shuffle(arr) {
   return arr.sort(() => Math.random() - 0.5);
 }
-
 function randomLine() {
   const chars = "!@#$%^&*()_+-={}[]<>|0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let result = "";
@@ -103,21 +138,17 @@ function randomLine() {
   }
   return result;
 }
-
 function injectWord(base, word) {
   const pos = Math.floor(Math.random() * (base.length - word.length));
   return base.slice(0, pos) + word + base.slice(pos + word.length);
 }
-
 function extractWord(text) {
   const match = text.match(/[A-Z]{6}/);
   return match ? match[0] : null;
 }
-
 function getMatchingLetters(a, b) {
   return [...a].filter((char, i) => char === b[i]).length;
 }
-
 function checkLine(div, line) {
   if (clicked || div.classList.contains("clicked")) return;
   const guess = extractWord(line);
@@ -145,7 +176,6 @@ function checkLine(div, line) {
     }
   }
 }
-
 function endGame(success, msg) {
   result.innerText = msg;
   result.style.color = success ? "#00ff66" : "#ff0033";
