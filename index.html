@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TERMINAL ROBCO INDUSTRIES</title>
+<title>TERMINAL ROBCO INDUSTRIES - Hackowanie</title>
 
 <!-- Google Fonts: Share Tech Mono -->
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
@@ -25,6 +25,8 @@
     user-select: none;
     display: flex;
     justify-content: center;
+    min-height: 100vh;
+    align-items: center;
   }
 
   #terminal {
@@ -42,6 +44,8 @@
     border: 2px solid #00ff00;
     border-radius: 6px;
     background-color: #000;
+    display: none; /* ukryty do startu */
+    flex-direction: column;
   }
 
   @keyframes crt-flicker {
@@ -49,7 +53,8 @@
     50% { opacity: 0.85; }
   }
 
-  #terminal {
+  #terminal.active {
+    display: flex;
     animation: crt-flicker 0.15s infinite;
   }
 
@@ -77,123 +82,209 @@
   input::selection {
     background-color: #004400;
   }
+
+  /* Ekran wyboru poziomu */
+  #start-screen {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 400px;
+    width: 90vw;
+    text-align: center;
+  }
+
+  #start-screen h1 {
+    margin-bottom: 1rem;
+  }
+
+  button {
+    background-color: #000;
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    padding: 0.8rem 1rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  button:hover {
+    background-color: #00ff00;
+    color: #000;
+  }
+
 </style>
 </head>
 <body>
-  <div id="terminal"></div>
 
-  <script>
-    const terminal = document.getElementById('terminal');
+<div id="start-screen">
+  <h1>Wybierz poziom trudności</h1>
+  <button data-difficulty="easy">Łatwy</button>
+  <button data-difficulty="medium">Średni</button>
+  <button data-difficulty="hard">Trudny</button>
+</div>
 
-    const slowWords = ["SKRZYNIA", "PRÓBA", "MOCNY", "WAZA", "TAJEMNICA", "ZASILANIE", "KLUCZ", "PAMIĘĆ"];
-    let words = [...slowWords];
+<div id="terminal"></div>
 
-    const haslo = words[Math.floor(Math.random() * words.length)];
-    const maxProby = 4;
-    let probyPozostale = maxProby;
-    let zablokowany = false;
+<script>
+  const slowa = [
+    "SKRZYNIA", "PRÓBA", "MOCNY", "WAZA", "TAJEMNICA",
+    "ZASILANIE", "KLUCZ", "PAMIĘĆ", "EKRAN", "ZAMEK", 
+    "WYBUCH", "ENERGIA", "NAPIĘCIE", "KABEL", "POŁĄCZENIE",
+    "ZASILACZ", "MONITOR", "PORTAL", "SYSTEM", "KOMPUTER",
+    "PANEL", "PRZEŁĄCZNIK", "SZYFR", "OBWÓD", "PAMIĘĆ",
+    "PROGRAM", "URZĄDZENIE", "ŁĄCZNOŚĆ", "MODUŁ", "PAMIĘĆ",
+    "KLUCZOWY", "BATERIA", "ZASILANIE", "TRANSMISJA", "CZUJNIK"
+  ];
 
-    function losoweZnaki(dlugosc) {
-      const znaki = "!@#$%^&*()_+=-{}[]:;<>?/\\|";
-      let wynik = "";
-      for(let i=0; i<dlugosc; i++) {
-        wynik += znaki.charAt(Math.floor(Math.random()*znaki.length));
-      }
-      return wynik;
+  const terminal = document.getElementById('terminal');
+  const startScreen = document.getElementById('start-screen');
+
+  let haslo = "";
+  let probyPozostale = 0;
+  let zablokowany = false;
+
+  // Filtrowanie słów wg długości
+  function filtrujSlowa(minLen, maxLen) {
+    return slowa.filter(s => s.length >= minLen && s.length <= maxLen);
+  }
+
+  // Generowanie losowych znaków
+  function losoweZnaki(dlugosc) {
+    const znaki = "!@#$%^&*()_+=-{}[]:;<>?/\\|";
+    let wynik = "";
+    for(let i=0; i<dlugosc; i++) {
+      wynik += znaki.charAt(Math.floor(Math.random()*znaki.length));
     }
+    return wynik;
+  }
 
-    function budujPamiec() {
-      let output = "TERMINAL ROBCO INDUSTRIES (TM)\nWPROWADŹ HASŁO\n\n";
+  // Buduje "pamięć" terminala z wstawionymi słowami
+  function budujPamiec(words, proby) {
+    let output = "TERMINAL ROBCO INDUSTRIES (TM)\nWPROWADŹ HASŁO\n\n";
 
-      let slowaDoWstawienia = [...words];
+    let slowaDoWstawienia = [...words].sort(() => 0.5 - Math.random());
 
-      for(let i=0; i<16; i++) {
-        const adres = "0x" + (i*16).toString(16).padStart(4,'0').toUpperCase();
-        let linia = adres + " ";
+    for(let i=0; i<16; i++) {
+      const adres = "0x" + (i*16).toString(16).padStart(4,'0').toUpperCase();
+      let linia = adres + " ";
 
-        for(let blok=0; blok<2; blok++) {
-          let fragment = losoweZnaki(12).split('');
+      for(let blok=0; blok<2; blok++) {
+        let fragment = losoweZnaki(12).split('');
 
-          if(Math.random() < 0.2 && slowaDoWstawienia.length) {
-            const slowo = slowaDoWstawienia.pop();
-            const pozycja = Math.floor(Math.random() * (fragment.length - slowo.length));
-            for(let k=0; k<slowo.length; k++) {
-              fragment[pozycja + k] = slowo[k];
-            }
+        if(Math.random() < 0.25 && slowaDoWstawienia.length) {
+          const slowo = slowaDoWstawienia.pop();
+          const pozycja = Math.floor(Math.random() * (fragment.length - slowo.length));
+          for(let k=0; k<slowo.length; k++) {
+            fragment[pozycja + k] = slowo[k];
           }
-
-          linia += fragment.join('') + " ";
         }
-        output += linia + "\n";
+
+        linia += fragment.join('') + " ";
       }
-
-      output += `\nPróby pozostałe: ${probyPozostale}\n`;
-
-      return output;
+      output += linia + "\n";
     }
 
-    function likeness(odgadniete, poprawne) {
-      odgadniete = odgadniete.toUpperCase();
-      let licznik = 0;
-      for(let i=0; i < Math.min(odgadniete.length, poprawne.length); i++) {
-        if(odgadniete[i] === poprawne[i]) licznik++;
-      }
-      return licznik;
+    output += `\nPróby pozostałe: ${proby}\n`;
+
+    return output;
+  }
+
+  // Funkcja likeness (podobieństwo)
+  function likeness(odgadniete, poprawne) {
+    odgadniete = odgadniete.toUpperCase();
+    let licznik = 0;
+    for(let i=0; i < Math.min(odgadniete.length, poprawne.length); i++) {
+      if(odgadniete[i] === poprawne[i]) licznik++;
     }
+    return licznik;
+  }
 
-    function dodajTekst(tekst) {
-      terminal.textContent += tekst + "\n";
-      terminal.scrollTop = terminal.scrollHeight;
-    }
+  function dodajTekst(tekst) {
+    terminal.textContent += tekst + "\n";
+    terminal.scrollTop = terminal.scrollHeight;
+  }
 
-    function stworzInput() {
-      if(zablokowany) return;
+  // Tworzy input do wpisania hasła
+  function stworzInput() {
+    if(zablokowany) return;
 
-      const liniaInput = document.createElement('div');
-      liniaInput.className = 'input-line';
+    const liniaInput = document.createElement('div');
+    liniaInput.className = 'input-line';
 
-      const prompt = document.createElement('span');
-      prompt.textContent = '> ';
-      liniaInput.appendChild(prompt);
+    const prompt = document.createElement('span');
+    prompt.textContent = '> ';
+    liniaInput.appendChild(prompt);
 
-      const input = document.createElement('input');
-      input.setAttribute('autocomplete', 'off');
-      input.setAttribute('autocorrect', 'off');
-      input.setAttribute('autocapitalize', 'off');
-      input.setAttribute('spellcheck', 'false');
-      liniaInput.appendChild(input);
+    const input = document.createElement('input');
+    input.setAttribute('autocomplete', 'off');
+    input.setAttribute('autocorrect', 'off');
+    input.setAttribute('autocapitalize', 'off');
+    input.setAttribute('spellcheck', 'false');
+    liniaInput.appendChild(input);
 
-      input.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter' && !zablokowany) {
-          const odp = input.value.trim().toUpperCase();
-          if(!odp) return;
-          input.disabled = true;
+    input.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' && !zablokowany) {
+        const odp = input.value.trim().toUpperCase();
+        if(!odp) return;
+        input.disabled = true;
 
-          if(odp === haslo) {
-            dodajTekst(`> ${odp}\nDOSTĘP PRZYZNANY\n`);
+        if(odp === haslo) {
+          dodajTekst(`> ${odp}\nDOSTĘP PRZYZNANY\n`);
+          zablokowany = true;
+        } else {
+          probyPozostale--;
+          const podobienstwo = likeness(odp, haslo);
+          dodajTekst(`> ${odp}\nDOSTĘP ODMIENIONY. PODOBIEŃSTWO: ${podobienstwo}`);
+
+          if(probyPozostale <= 0) {
+            dodajTekst("\nTERMINAL ZABLOKOWANY. SKONTAKTUJ SIĘ Z ADMINISTRATOREM.");
             zablokowany = true;
           } else {
-            probyPozostale--;
-            const podobienstwo = likeness(odp, haslo);
-            dodajTekst(`> ${odp}\nDOSTĘP ODMIENIONY. PODOBIEŃSTWO: ${podobienstwo}`);
-
-            if(probyPozostale <= 0) {
-              dodajTekst("\nTERMINAL ZABLOKOWANY. SKONTAKTUJ SIĘ Z ADMINISTRATOREM.");
-              zablokowany = true;
-            } else {
-              dodajTekst(`Próby pozostałe: ${probyPozostale}`);
-              stworzInput();
-            }
+            dodajTekst(`Próby pozostałe: ${probyPozostale}`);
+            stworzInput();
           }
         }
-      });
+      }
+    });
 
-      terminal.appendChild(liniaInput);
-      input.focus();
+    terminal.appendChild(liniaInput);
+    input.focus();
+  }
+
+  // START GRY
+  startScreen.addEventListener('click', (e) => {
+    if(e.target.tagName === "BUTTON") {
+      const poziom = e.target.getAttribute('data-difficulty');
+
+      // Ustawienia trudności
+      let minLen = 4, maxLen = 9, proby = 4;
+
+      if(poziom === "easy") proby = 6;
+      else if(poziom === "medium") proby = 4;
+      else if(poziom === "hard") proby = 3;
+
+      // Filtrowanie słów wg długości
+      let slowaDoGry = filtrujSlowa(minLen, maxLen);
+
+      // Losowe hasło
+      haslo = slowaDoGry[Math.floor(Math.random() * slowaDoGry.length)];
+
+      probyPozostale = proby;
+      zablokowany = false;
+
+      // Ukryj start, pokaż terminal
+      startScreen.style.display = 'none';
+      terminal.textContent = "";
+      terminal.classList.add('active');
+
+      terminal.textContent = budujPamiec(slowaDoGry, probyPozostale);
+      stworzInput();
     }
+  });
 
-    terminal.textContent = budujPamiec();
-    stworzInput();
-  </script>
+</script>
+
 </body>
 </html>
