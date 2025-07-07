@@ -2,70 +2,99 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Minigra Hackowania</title>
+  <title>Cyberpunk Hack Game</title>
   <style>
     body {
-      background-color: black;
-      color: limegreen;
-      font-family: monospace;
-      padding: 20px;
+      background: linear-gradient(180deg, #0f011d, #1a0033);
+      color: #00ffcc;
+      font-family: 'Courier New', monospace;
+      padding: 30px;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff;
     }
 
     #terminal {
-      white-space: pre;
-      border: 1px solid green;
-      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border: 2px solid #00ffff;
+      padding: 15px;
       margin-top: 20px;
-      max-height: 400px;
+      max-height: 500px;
       overflow-y: auto;
+      color: #00ffcc;
+      box-shadow: 0 0 15px #00ffff;
     }
 
     .line {
       cursor: pointer;
+      transition: all 0.2s;
+      padding: 2px;
     }
 
     .line:hover {
-      background-color: darkgreen;
+      background-color: rgba(0, 255, 255, 0.2);
+      color: #ffffff;
+      text-shadow: 0 0 8px #00ffff;
     }
 
     #result {
-      margin-top: 20px;
+      margin-top: 25px;
       font-weight: bold;
+      font-size: 1.2em;
+      color: #39ff14;
+      text-shadow: 0 0 10px #39ff14;
+    }
+
+    .blink {
+      animation: blink 1s step-start infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
     }
 
     button {
-      background-color: black;
-      color: limegreen;
-      border: 1px solid green;
+      background: none;
+      color: #ff00ff;
+      border: 2px solid #ff00ff;
       padding: 10px 20px;
       font-family: monospace;
+      font-size: 1em;
       cursor: pointer;
+      box-shadow: 0 0 10px #ff00ff;
+      transition: all 0.2s ease-in-out;
     }
 
     button:hover {
-      background-color: darkgreen;
+      background-color: #ff00ff;
+      color: black;
+      box-shadow: 0 0 20px #ff00ff;
     }
   </style>
 </head>
 <body>
 
-<h1>== TERMINAL HAKERSKI ==</h1>
+<h1>== CYBER-HACK INTERFACE ==</h1>
 <button onclick="startHack()">START</button>
 
 <div id="terminal"></div>
-<div id="result"></div>
+<div id="result" class="blink"></div>
 
 <script>
   const terminal = document.getElementById("terminal");
   const result = document.getElementById("result");
 
   const PASSWORD = generatePassword(); // losowe hasło
-  const LINES = 16; // liczba linii w terminalu
-  let clicked = false; // czy już kliknięto jedną z linii
+  const LINES = 20;
+  let clicked = false;
 
-  // Generowanie losowego hasła (np. 6-literowe słowo z wielkich liter)
   function generatePassword() {
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const letters = "ZXCVBNMASDFGHJKLQWERTYUIOP";
     let pass = "";
     for (let i = 0; i < 6; i++) {
       pass += letters.charAt(Math.floor(Math.random() * letters.length));
@@ -73,7 +102,6 @@
     return pass;
   }
 
-  // Funkcja startowa uruchamiająca "hakowanie"
   function startHack() {
     terminal.innerHTML = "";
     result.innerText = "";
@@ -81,17 +109,14 @@
 
     const lines = [];
 
-    // Wstaw losowe linie z "kodem"
     for (let i = 0; i < LINES; i++) {
       lines.push(randomCodeLine());
     }
 
-    // Wylosuj jedną linię, która będzie zawierała prawidłowe hasło
     const correctIndex = Math.floor(Math.random() * LINES);
     lines[correctIndex] = injectPassword(lines[correctIndex], PASSWORD);
 
-    // Wyświetl wszystkie linie w terminalu
-    lines.forEach((line, index) => {
+    lines.forEach((line) => {
       const div = document.createElement("div");
       div.classList.add("line");
       div.innerText = line;
@@ -100,31 +125,32 @@
     });
   }
 
-  // Funkcja tworząca losowy ciąg znaków udający kod
   function randomCodeLine() {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ{}[]()!@#$%^&*-_+=1234567890";
+    const chars = "{}[]<>!@#$%^&*()_+=-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let str = "";
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 34; i++) {
       str += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return str;
   }
 
-  // Wstrzykiwanie hasła do losowej pozycji w danej linii
   function injectPassword(line, password) {
     const pos = Math.floor(Math.random() * (line.length - password.length));
     return line.slice(0, pos) + password + line.slice(pos + password.length);
   }
 
-  // Sprawdzenie, czy kliknięto dobrą linię
   function checkLine(line) {
-    if (clicked) return; // tylko jedno kliknięcie na grę
+    if (clicked) return;
     clicked = true;
 
     if (line.includes(PASSWORD)) {
-      result.innerText = ">>> HACK UDANY: HASŁO ZNALEZIONE!";
+      result.innerText = ">>> DOSTĘP UZYSKANY <<<";
+      result.style.color = "#00ff99";
+      result.style.textShadow = "0 0 10px #00ff99";
     } else {
-      result.innerText = ">>> HACK NIEUDANY: ZŁA LINIA!";
+      result.innerText = ">>> BŁĄD: NIEAUTORYZOWANY DOSTĘP <<<";
+      result.style.color = "#ff0033";
+      result.style.textShadow = "0 0 10px #ff0033";
     }
   }
 </script>
