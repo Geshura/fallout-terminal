@@ -2,125 +2,138 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fallout Terminal Hack</title>
+  <title>ROBCO INDUSTRIES TERMLINK</title>
   <style>
     body {
       background-color: black;
-      color: #00FF00;
+      color: #00ff00;
       font-family: 'Courier New', monospace;
-      padding: 20px;
-      margin: 0;
-    }
-
-    #terminal {
-      white-space: pre;
       font-size: 16px;
+      padding: 20px;
+      white-space: pre;
+      line-height: 1.4;
+      user-select: none;
     }
 
-    .cursor {
-      display: inline-block;
-      width: 10px;
-      animation: blink 1s steps(1) infinite;
+    .crt {
+      text-shadow: 0 0 5px #00ff00;
+      animation: flicker 0.1s infinite alternate;
     }
 
-    @keyframes blink {
-      50% { background-color: #00FF00; color: #00FF00; }
-      100% { background-color: transparent; color: transparent; }
+    @keyframes flicker {
+      0%   { opacity: 0.98; }
+      100% { opacity: 1; }
+    }
+
+    .input-line {
+      display: flex;
     }
 
     input {
-      background: none;
+      background: transparent;
       border: none;
-      color: #00FF00;
+      color: #00ff00;
       font-family: inherit;
       font-size: 16px;
       outline: none;
-    }
-
-    .prompt {
-      display: flex;
+      width: 200px;
     }
   </style>
 </head>
 <body>
-  <div id="terminal">
-    <div>ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL</div>
-    <div>ENTER PASSWORD NOW</div>
-    <br>
-    <div id="memory-dump"></div>
-    <br>
-    <div id="output"></div>
-    <div class="prompt">
-      <span>&gt; </span><input id="userInput" autocomplete="off" />
-    </div>
-  </div>
-
+  <div class="crt" id="terminal"></div>
   <script>
+    const terminal = document.getElementById("terminal");
     const words = ["VAULT", "CABLE", "POWER", "WASTE", "TRIAL", "CRATE", "STONE", "BONDS"];
     const correct = words[Math.floor(Math.random() * words.length)];
-    const attempts = 4;
-    let remaining = attempts;
+    const attemptsAllowed = 4;
+    let attemptsLeft = attemptsAllowed;
+    let isLocked = false;
 
-    const memoryDump = document.getElementById('memory-dump');
-    const output = document.getElementById('output');
-    const input = document.getElementById('userInput');
+    function randomSymbols(len) {
+      const chars = "!@#$%^&*()_+=-{}[]:;<>?/\\|";
+      let result = "";
+      for (let i = 0; i < len; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
 
-    function generateMemoryDump() {
-      let dump = "";
-      const symbols = "!@#$%^&*()-_=+[]{}|;:',.<>?/\\";
+    function buildMemoryDump() {
+      let output = "ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL\n";
+      output += "ENTER PASSWORD NOW\n\n";
+
       for (let i = 0; i < 16; i++) {
-        let line = "0x" + (i * 10).toString(16).padStart(4, "0").toUpperCase() + " ";
+        const addr = "0x" + (i * 10).toString(16).padStart(4, '0').toUpperCase();
+        let line = addr + " ";
+
         for (let j = 0; j < 2; j++) {
-          line += randomChars(12) + " ";
+          let block = randomSymbols(12).split('');
+          // 10% szans na wstawienie słowa
+          if (Math.random() < 0.2 && words.length) {
+            const word = words.pop();
+            const pos = Math.floor(Math.random() * (block.length - word.length));
+            for (let k = 0; k < word.length; k++) {
+              block[pos + k] = word[k];
+            }
+          }
+          line += block.join('') + " ";
         }
-        dump += line + "\n";
+
+        output += line + "\n";
       }
-      memoryDump.textContent = dump;
+
+      output += "\nAttempts Remaining: " + attemptsLeft + "\n";
+      return output;
     }
 
-    function randomChars(length) {
-      const pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "!@#$%^&*";
-      let str = "";
-      for (let i = 0; i < length; i++) {
-        str += pool.charAt(Math.floor(Math.random() * pool.length));
-      }
-      return str;
+    function likeness(guess, correct) {
+      return guess.split('').filter((ch, i) => ch === correct[i]).length;
     }
 
-    function likeness(word1, word2) {
-      let match = 0;
-      for (let i = 0; i < word1.length; i++) {
-        if (word1[i] === word2[i]) match++;
-      }
-      return match;
+    function updateTerminal(text) {
+      terminal.textContent += text + "\n";
+      terminal.scrollTop = terminal.scrollHeight;
     }
 
-    input.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        const guess = input.value.toUpperCase();
-        input.value = "";
-        if (!words.includes(guess)) {
-          output.innerHTML += `> ${guess}\nINVALID WORD\n`;
-          return;
-        }
-        if (guess === correct) {
-          output.innerHTML += `> ${guess}\nACCESS GRANTED\n`;
+    function createInput() {
+      const inputLine = document.createElement("div");
+      inputLine.className = "input-line";
+      const prompt = document.createElement("span");
+      prompt.textContent = "> ";
+      const input = document.createElement("input");
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !isLocked) {
+          const guess = input.value.trim().toUpperCase();
           input.disabled = true;
-        } else {
-          remaining--;
-          const like = likeness(guess, correct);
-          output.innerHTML += `> ${guess}\nEntry Denied. Likeness = ${like}\n`;
-          if (remaining <= 0) {
-            output.innerHTML += `TERMINAL LOCKED. PLEASE CONTACT AN ADMINISTRATOR.\n`;
-            input.disabled = true;
+
+          if (guess === correct) {
+            updateTerminal("> " + guess + "\nACCESS GRANTED");
+            isLocked = true;
+          } else {
+            const like = likeness(guess, correct);
+            attemptsLeft--;
+            updateTerminal("> " + guess + "\nENTRY DENIED. LIKENESS = " + like);
+            if (attemptsLeft <= 0) {
+              updateTerminal("\nTERMINAL LOCKED. PLEASE CONTACT AN ADMINISTRATOR.");
+              isLocked = true;
+            } else {
+              updateTerminal("Attempts Remaining: " + attemptsLeft);
+              createInput();
+            }
           }
         }
-        output.scrollTop = output.scrollHeight;
-      }
-    });
+      });
 
-    generateMemoryDump();
+      inputLine.appendChild(prompt);
+      inputLine.appendChild(input);
+      terminal.appendChild(inputLine);
+      input.focus();
+    }
+
+    terminal.textContent = buildMemoryDump();
+    createInput();
   </script>
 </body>
 </html>
