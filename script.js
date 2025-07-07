@@ -7,7 +7,7 @@ let password = "";
 let attemptsLeft = 0;
 let gameActive = false;
 let wordsOnBoard = [];
-const wordsCount = 10; // ile słów wyświetlamy na planszy
+const wordsCount = 4; // ile słów wyświetlamy na planszy
 
 const difficultySettings = {
   easy: {
