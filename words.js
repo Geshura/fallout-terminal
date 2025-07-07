@@ -1,26 +1,22 @@
-// Tablice słów podzielone wg długości
-
-const words4 = [
-  "BRAK", "BROŃ", "CIĄĆ", "COLA", "CZAR", "DRES", "GHUL", "GNÓJ", "GNIĆ", "GŁÓD", "GRÓB", "GRUZ", "KADR", "KOŚĆ", "KREW", "KULE", "MINA", "OPAD", "PIES", "PLAN", "RDZA", "RWAĆ", "ŚRUT", "TONA", "TROP", "TRUP", "WRAK", "WRÓG", "ZGON", "ZIMA", "ZUPA", "ZĘBY", "ZRYW"
-];
-
-const words5 = [
-  "BOMBA", "BRUDY", "CISZA", "CZARN", "GLEBA", "GNIEJE", "GROBY", "GROZA", "GRUBY", "GRZEB", "GUZIK", "GŁOWA", "HUKNĄ", "JAZDA", "ŁOMEM", "MROKŁ", "PADŁO", "PLAGA", "RDZAŁ", "RUINA", "SKÓRA", "SMRÓD", "SPADA", "STRZA", "ŚMIER", "SŁABO", "TARAN",
-  "TOKSY", "TRUJĄ", "TRUPY", "WIRUS", "ZARDZ", "ZŁOMĆ", "ZOMBI"
-];
-
 const words6 = [
-  "ZARAZA", "PADLINA", "BUNKIER", "ZGNICA", "RDZAWE", "PUSZKA", "GNICIE", "ZOMBIE", "KREWKA", "CZYSTA", "GŁODNY"
-];
-
-const words7 = [
-  "MUTACJA", "ZATRUTA", "RUINOWA", "WYBUCHY", "STRUPKI", "KOROZJA", "BRONIEŚ", "GŁODOWY", "ZAROBEK", "ROZPADŁ", "ŚMIERĆI", "ZGNILNA", "WYPALEN", "CIEMNOŚ", "POMIOTY", "SKAŻONE", "WIRUSOW", "PADLINA", "WRZASKI", "OŚMIORN"
-];
-
-const words8 = [
-  "POSTRACH", "PROMIENI", "PUSTKOWA", "NIECZYST", "ZRUJNOWA", "ZGNIŁOŚĆ", "ŻYWNOŚCI", "ZATRUCIE", "ZARDZEWA", "WYGASZEN", "ANTYGNÓJ", "SKAŻENIE", "WYMARŁY", "GNILIZNA", "ZŁOMOWIS", "ROZPADAM", "WYGNANIE", "TRUCIŹNA", "ZARAZILI", "ZAMROCZE"
-];
-
-const words9 = [
-  "RADIOAKTY", "ZŁOMOWISK", "ZATRUCIOW", "NIEBEZPIE", "ZGNILIZNA", "PUSTKOWIE", "ZRUJNOWANE", "ANTYRADIA", "MUTAGENEZ", "BEZPIECZN", "ZGŁADZONE", "NADROZPAD", "PRZERAŻEN", "ROZKŁADAM", "WYGASZENI", "WIRUSOWYM", "KATASTROF", "WYMARZONY", "ROZPADNIE", "GNILIZMOW"
+  "pustka",
+  "radion",
+  "grzybka",
+  "szczur",
+  "mutant",
+  "ruinyk",
+  "pluton",
+  "wirusy",
+  "brońka",
+  "oazaas",
+  "klątwa",
+  "zagłada",
+  "koktaj",
+  "lazury",
+  "kolaps",
+  "burzak",
+  "łuszcz",
+  "zapaln",
+  "kaktus",
+  "toksyn"
 ];
