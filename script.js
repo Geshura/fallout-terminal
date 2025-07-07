@@ -1,10 +1,13 @@
-let haslo = "";
-let probyPozostale = 0;
-let zablokowany = true;
-
+// ----- ZMIENNE GLOBALNE -----
 const terminal = document.getElementById("terminal");
 const inputWrapper = document.getElementById("input-wrapper");
-const difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
+const difficultyCheckboxes = document.querySelectorAll('input[name="difficulty"]');
+
+let password = "";
+let attemptsLeft = 0;
+let gameActive = false;
+let wordsOnBoard = [];
+const wordsCount = 10; // ile słów wyświetlamy na planszy
 
 const difficultySettings = {
   easy: {
@@ -21,76 +24,137 @@ const difficultySettings = {
   }
 };
 
-function wyczyscTerminal() {
-  terminal.textContent = "";
-  inputWrapper.innerHTML = "";
+// --- Funkcje pomocnicze ---
+
+// Oblicza Likeness: ile liter jest na właściwej pozycji w obu słowach
+function likeness(word1, word2) {
+  let count = 0;
+  for (let i = 0; i < word1.length; i++) {
+    if (word1[i] === word2[i]) count++;
+  }
+  return count;
 }
 
-function budujPamiec(word, attempts) {
-  return `HASŁO: ${"_ ".repeat(word.length).trim()}\n\nPRÓB: ${attempts}`;
+// Losuje n słów z tablicy bez powtórzeń
+function getRandomWords(arr, n) {
+  const result = [];
+  const copy = [...arr];
+  while (result.length < n && copy.length > 0) {
+    const idx = Math.floor(Math.random() * copy.length);
+    result.push(copy.splice(idx, 1)[0]);
+  }
+  return result;
 }
 
-function stworzInput() {
-  const input = document.createElement("input");
-  input.type = "text";
-  input.maxLength = 1;
-  input.autocomplete = "off";
-  input.autofocus = true;
-  inputWrapper.appendChild(input);
+// Generuje planszę słów
+function generateBoard(wordsList, password) {
+  wordsOnBoard = getRandomWords(wordsList, wordsCount);
 
-  input.addEventListener("input", (e) => {
-    const litera = e.target.value.toUpperCase();
-    e.target.value = "";
+  // Jeśli hasło nie ma wylosowanego na planszy, dodaj je losowo
+  if (!wordsOnBoard.includes(password)) {
+    wordsOnBoard[Math.floor(Math.random() * wordsOnBoard.length)] = password;
+  }
+}
 
-    if (zablokowany || !litera.match(/[A-ZĄĆĘŁŃÓŚŹŻ]/i)) return;
+// Renderuje planszę w terminalu wraz z próbami i polem input
+function render() {
+  let text = `PRÓBY POZOSTAŁE: ${attemptsLeft}\n\n`;
+  text += "Wybierz słowo i wpisz je, aby się włamać:\n\n";
 
-    sprawdzLitere(litera);
+  wordsOnBoard.forEach(word => {
+    text += word + "\n";
   });
+
+  terminal.textContent = text;
+  inputWrapper.innerHTML = "";
+
+  if (gameActive) {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.maxLength = password.length;
+    input.autocomplete = "off";
+    input.autofocus = true;
+    inputWrapper.appendChild(input);
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const guess = input.value.toUpperCase().trim();
+        input.value = "";
+
+        if (guess.length !== password.length) {
+          alert(`Słowo musi mieć dokładnie ${password.length} liter.`);
+          return;
+        }
+        if (!wordsOnBoard.includes(guess)) {
+          alert("To słowo nie znajduje się na planszy.");
+          return;
+        }
+
+        handleGuess(guess);
+      }
+    });
+  }
 }
 
-function sprawdzLitere(litera) {
-  if (!haslo.includes(litera)) {
-    probyPozostale--;
-  }
+// Obsługuje próbę zgadnięcia hasła
+function handleGuess(guess) {
+  if (!gameActive) return;
 
-  terminal.textContent = budujPamiec(haslo, probyPozostale);
-
-  if (probyPozostale <= 0) {
-    terminal.textContent += `\n\nKONIEC GRY! Hasło to: ${haslo}`;
-    zablokowany = true;
+  if (guess === password) {
+    terminal.textContent += `\n\nDOSTĘP PRZYZNANY. Hasło: ${password}`;
+    gameActive = false;
     inputWrapper.innerHTML = "";
-  }
-}
-
-function ustawPoziom(difficulty) {
-  if (!difficultySettings[difficulty]) return;
-
-  const lengths = difficultySettings[difficulty].lengths;
-  const proby = difficultySettings[difficulty].attempts;
-
-  const wybraneDlugosci = words.filter(word =>
-    lengths.includes(word.length)
-  );
-
-  if (!wybraneDlugosci || wybraneDlugosci.length === 0) {
-    alert(`Brak słów dla poziomu: ${difficulty}`);
     return;
   }
 
-  haslo = wybraneDlugosci[Math.floor(Math.random() * wybraneDlugosci.length)].toUpperCase();
-  probyPozostale = proby;
-  zablokowany = false;
+  const likenessCount = likeness(guess, password);
+  attemptsLeft--;
 
-  wyczyscTerminal();
-  terminal.textContent = budujPamiec(haslo, probyPozostale);
-  stworzInput();
+  terminal.textContent += `\n\n${guess} - LIKENESS: ${likenessCount}`;
+  if (attemptsLeft <= 0) {
+    terminal.textContent += `\n\nBRAK PRÓB! Hasło to: ${password}`;
+    gameActive = false;
+    inputWrapper.innerHTML = "";
+  }
+
+  render();
 }
 
-// Obsługa wyboru poziomu (radio)
-difficultyRadios.forEach(radio => {
-  radio.addEventListener("change", () => {
-    if (radio.checked) {
-      ustawPoziom(radio.value);
+// Ustawia poziom trudności i startuje grę
+function startGame(difficulty) {
+  if (!difficultySettings[difficulty]) return;
+
+  const lengths = difficultySettings[difficulty].lengths;
+  attemptsLeft = difficultySettings[difficulty].attempts;
+
+  const chosenLength = lengths[Math.floor(Math.random() * lengths.length)];
+  const wordsList = window[`words${chosenLength}`];
+
+  if (!wordsList || wordsList.length < wordsCount) {
+    alert(`Brak wystarczającej liczby słów o długości ${chosenLength}`);
+    return;
+  }
+
+  password = wordsList[Math.floor(Math.random() * wordsList.length)].toUpperCase();
+  generateBoard(wordsList, password);
+  gameActive = true;
+
+  render();
+}
+
+// Obsługa checkboxów - tylko jeden może być aktywny
+difficultyCheckboxes.forEach(chk => {
+  chk.addEventListener('change', () => {
+    if (chk.checked) {
+      difficultyCheckboxes.forEach(c => { if (c !== chk) c.checked = false; });
+      startGame(chk.value);
+    } else {
+      // Gdy checkbox odznaczony - reset gry
+      terminal.textContent = "Wybierz poziom trudności, aby rozpocząć...";
+      inputWrapper.innerHTML = "";
+      gameActive = false;
+      password = "";
+      attemptsLeft = 0;
     }
   });
 });

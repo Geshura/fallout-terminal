@@ -1,19 +1,25 @@
-const words = [
-  // 4 litery
-  "kret", "domu", "lódź", "sól", "kosa",
+// Tablice słów podzielone wg długości
 
-  // 5 liter
-  "zebra", "okres", "zamek", "klucz", "brama",
+const words4 = [
+  "PLAN", "KODE", "MASK", "RAMY", "LINI", "BOMY", "DATA", "KLAW", "DRUK"
+];
 
-  // 6 liter
-  "władca", "wojtek", "zegary", "obrona", "silnik",
+const words5 = [
+  "KARTA", "BIURO", "HASLO", "WINDOW", "ZAMEK", "MODUL", "WIERSZ", "PANEL", "OKNO"
+];
 
-  // 7 liter
-  "komnata", "obrońca", "pancern", "hakowie",
+const words6 = [
+  "ZAMKNIJ", "PODGLAD", "MONITOR", "WYJSCIE", "KLUCZEK", "PODSUMA", "KONTRO", "FUNKCJ"
+];
 
-  // 8 liter
-  "generator", "rozgrywka", "archiwum", "komputer",
+const words7 = [
+  "ZAPISAN", "PRZELOT", "SCIEZKA", "DOSTEPN", "STRUKTA", "POWROT", "WYBORC", "ZALEZNY"
+];
 
-  // 9 liter
-  "bezpieczeń", "eksplozje", "nawigacja", "mutantami"
+const words8 = [
+  "KONTROLA", "PRZESLAD", "PROGRAMY", "KONSOLA", "INTERNET", "ZALOZENI", "WYPALANIE"
+];
+
+const words9 = [
+  "PRZESZUKAJ", "ZABLOKUJ", "ODZYSKAN", "RESTARTUJ", "ZAPISYWAN", "WYPROWADZ", "ODSZUKAJ"
 ];
