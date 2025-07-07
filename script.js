@@ -1,84 +1,51 @@
+const wordListEl = document.getElementById("word-list");
+const statusEl = document.getElementById("status");
+const attemptsEl = document.getElementById("attempts");
+
 let haslo = "";
 let probyPozostale = 5;
-let zablokowany = true;
 
-const terminal = document.getElementById("terminal");
-const inputWrapper = document.getElementById("input-wrapper");
+function startGame() {
+  // Losujemy hasło
+  haslo = words6[Math.floor(Math.random() * words6.length)].toUpperCase();
+  probyPozostale = 5;
+  statusEl.textContent = "Kliknij słowo, aby odgadnąć hasło";
+  attemptsEl.textContent = `Próby pozostałe: ${probyPozostale}`;
 
-// Funkcja czyszcząca terminal i input
-function wyczyscTerminal() {
-  terminal.textContent = "";
-  inputWrapper.innerHTML = "";
-}
+  // Generujemy listę słów
+  wordListEl.innerHTML = "";
+  words6.forEach(w => {
+    const btn = document.createElement("button");
+    btn.textContent = w.toUpperCase();
+    btn.className = "word-btn";
+    btn.addEventListener("click", () => {
+      if (probyPozostale <= 0) return;
+      if (btn.disabled) return;
 
-// Buduje planszę do gry z hasłem i próbami
-function budujPamiec(word, attempts, revealed=[]) {
-  let display = "";
-  for(let i = 0; i < word.length; i++) {
-    display += (revealed.includes(word[i]) ? word[i] : "_") + " ";
-  }
-  return `HASŁO: ${display.trim()}\n\nPRÓB: ${attempts}`;
-}
+      if (w.toUpperCase() === haslo) {
+        statusEl.textContent = `Gratulacje! Odgadłeś hasło: ${haslo}`;
+        disableButtons();
+      } else {
+        probyPozostale--;
+        attemptsEl.textContent = `Próby pozostałe: ${probyPozostale}`;
+        btn.disabled = true;
 
-// Tworzy pole input do wpisywania liter
-function stworzInput() {
-  const input = document.createElement("input");
-  input.type = "text";
-  input.maxLength = 1;
-  input.autocomplete = "off";
-  input.autofocus = true;
-  input.style.fontSize = "1.2rem";
-  input.style.padding = "5px";
-  inputWrapper.appendChild(input);
-
-  input.addEventListener("input", (e) => {
-    const litera = e.target.value.toUpperCase();
-    e.target.value = ""; // Czyści pole
-
-    if(zablokowany || !litera.match(/[A-ZĄĆĘŁŃÓŚŹŻ]/i)) return;
-
-    sprawdzLitere(litera);
+        if (probyPozostale === 0) {
+          statusEl.textContent = `Koniec gry! Hasło to: ${haslo}`;
+          disableButtons();
+        } else {
+          statusEl.textContent = `Błędne słowo, spróbuj ponownie`;
+        }
+      }
+    });
+    wordListEl.appendChild(btn);
   });
 }
 
-let odkryteLitery = [];
-
-// Sprawdza czy litera jest w haśle
-function sprawdzLitere(litera) {
-  if(!haslo.includes(litera)) {
-    probyPozostale--;
-  } else {
-    if(!odkryteLitery.includes(litera)) odkryteLitery.push(litera);
-  }
-
-  terminal.textContent = budujPamiec(haslo, probyPozostale, odkryteLitery);
-
-  if(!haslo.split("").some(l => !odkryteLitery.includes(l))) {
-    terminal.textContent += `\n\nWYGRAŁEŚ! Hasło to: ${haslo}`;
-    zablokowany = true;
-    inputWrapper.innerHTML = "";
-  } else if(probyPozostale <= 0) {
-    terminal.textContent += `\n\nPRZEGRAŁEŚ! Hasło to: ${haslo}`;
-    zablokowany = true;
-    inputWrapper.innerHTML = "";
-  }
+function disableButtons() {
+  const buttons = wordListEl.querySelectorAll("button");
+  buttons.forEach(b => b.disabled = true);
 }
 
-// Start gry: losuje słowo 6-literowe i ustawia parametry
-function start() {
-  if(!words6 || words6.length === 0) {
-    terminal.textContent = "Brak słów do gry!";
-    return;
-  }
-
-  haslo = words6[Math.floor(Math.random()*words6.length)].toUpperCase();
-  probyPozostale = 5;
-  odkryteLitery = [];
-  zablokowany = false;
-
-  wyczyscTerminal();
-  terminal.textContent = budujPamiec(haslo, probyPozostale);
-  stworzInput();
-}
-
-start();
+// Start gry po załadowaniu
+startGame();

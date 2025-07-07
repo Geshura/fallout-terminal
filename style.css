@@ -1,89 +1,55 @@
-* {
-  box-sizing: border-box;
-}
-
 body {
-  margin: 0;
-  background-color: #000;
+  background: black;
   color: #00ff00;
-  font-family: 'Share Tech Mono', monospace, Courier, monospace;
-  font-weight: 400;
-  font-size: clamp(14px, 1.8vw, 20px);
-  line-height: 1.4;
-  padding: 1rem 2rem;
+  font-family: 'Share Tech Mono', monospace;
+  padding: 1rem;
   user-select: none;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
   min-height: 100vh;
+  align-items: center;
 }
 
 .container {
-  width: 90vw;
-  max-width: 700px;
-}
-
-#difficulty-select {
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-#difficulty-select label {
-  margin: 0 1rem;
-  cursor: pointer;
-  font-size: 1.2rem;
-}
-
-#difficulty-select input[type="checkbox"] {
-  transform: scale(1.2);
-  margin-right: 0.5rem;
-  cursor: pointer;
-}
-
-#terminal {
+  max-width: 600px;
   width: 100%;
-  height: 60vh;
-  background-color: #000;
-  border: 2px solid #00ff00;
-  border-radius: 6px;
-  padding: 1rem;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  text-shadow:
-    0 0 5px #00ff00,
-    0 0 10px #00ff00,
-    0 0 20px #00ff00,
-    0 0 30px #00ff00;
-  display: flex;
-  flex-direction: column;
 }
 
-#input-wrapper {
+#word-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-top: 1rem;
 }
 
-input {
-  width: 100%;
-  background: transparent;
-  border: 2px solid #00ff00;
-  border-radius: 4px;
+.word-btn {
+  background: #004400;
+  border: 1px solid #00ff00;
   color: #00ff00;
-  font-family: inherit;
-  font-size: 1.5rem;
-  padding: 0.4rem 0.6rem;
-  caret-color: #00ff00;
-  outline: none;
+  font-size: 1.2rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  user-select: none;
+  transition: background 0.3s;
 }
 
-input::selection {
-  background-color: #004400;
+.word-btn:hover {
+  background: #007700;
 }
 
-@keyframes crt-flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
+.word-btn:disabled {
+  background: #002200;
+  cursor: default;
+  color: #005500;
 }
 
-#terminal.active {
-  animation: crt-flicker 0.15s infinite;
+#status {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+#attempts {
+  margin-top: 1rem;
+  font-size: 1.2rem;
 }

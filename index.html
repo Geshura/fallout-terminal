@@ -2,17 +2,19 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Symulacja Włamania - Fallout 3</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="container">
     <h1>Terminal Bractwa Stali</h1>
-    <pre id="terminal" class="terminal">Wczytywanie...</pre>
-    <div id="input-wrapper"></div>
+    <div id="status">Kliknij słowo, aby odgadnąć hasło</div>
+    <div id="word-list"></div>
+    <div id="attempts"></div>
   </div>
+
   <script src="words.js"></script>
   <script src="script.js"></script>
 </body>
