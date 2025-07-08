@@ -9,22 +9,22 @@
 </head>
 <body>
 
-  <!-- Ekran początkowy -->
+  <!-- EKRAN STARTOWY -->
   <div id="start-overlay">
     Kliknij, aby włączyć dźwięk i rozpocząć bootowanie
     <button id="start-button">LET'S HACK</button>
   </div>
 
-  <!-- Terminal bootowania -->
-  <div id="boot-container">
+  <!-- BOOT TERMINAL -->
+  <div id="boot-container" style="display: none;">
     <div id="boot-text"></div>
   </div>
 
-  <!-- Nagłówek gry -->
+  <!-- TYTUŁ -->
   <h1 id="main-title" style="display: none;">== CYBER-HACK INTERFACE ==</h1>
 
-  <!-- Główna część gry -->
-  <div id="game-container">
+  <!-- GRA -->
+  <div id="game-container" style="visibility: hidden;">
     <button id="hack-start-button">START</button>
 
     <div id="progress-bar-container">
@@ -35,15 +35,33 @@
     <div id="result"></div>
   </div>
 
-  <!-- Główna logika gry -->
+  <!-- SKRYPT -->
   <script src="script.js"></script>
   <script>
-    // Po załadowaniu skryptu – przypnij przycisk START w grze
+    // Po załadowaniu, przypnij przycisk START (w grze)
     window.addEventListener("DOMContentLoaded", () => {
-      const startHackBtn = document.getElementById("hack-start-button");
-      if (startHackBtn && typeof startHack === "function") {
-        startHackBtn.addEventListener("click", () => startHack());
-      }
+      const startBtn = document.getElementById("start-button");
+      const hackBtn = document.getElementById("hack-start-button");
+
+      // przypięcie START z gry
+      hackBtn.addEventListener("click", () => {
+        if (typeof startHack === "function") startHack();
+      });
+
+      // kliknięcie LET'S HACK inicjuje boot + dźwięk
+      startBtn.addEventListener("click", () => {
+        if (typeof AudioContext !== "undefined") {
+          const audio = new AudioContext();
+          if (audio.state === "suspended") audio.resume();
+        }
+
+        document.getElementById("start-overlay").style.display = "none";
+        document.getElementById("boot-container").style.display = "block";
+
+        if (typeof typeNextLine === "function") {
+          typeNextLine();
+        }
+      });
     });
   </script>
 </body>
