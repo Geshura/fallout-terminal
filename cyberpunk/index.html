@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- Intro ekran z bootowaniem -->
+  <!-- Ekran początkowy -->
   <div id="start-overlay">
     Kliknij, aby włączyć dźwięk i rozpocząć bootowanie
     <button id="start-button">LET'S HACK</button>
@@ -21,18 +21,25 @@
   </div>
 
   <!-- Nagłówek gry -->
-  <h1 id="main-title" style="display:none;">== CYBER-HACK INTERFACE ==</h1>
+  <h1 id="main-title" style="display: none;">== CYBER-HACK INTERFACE ==</h1>
 
-  <!-- Kontener gry -->
+  <!-- Główna część gry -->
   <div id="game-container">
-    <button onclick="startHack()">START</button>
+    <button id="hack-start-button">START</button>
+
     <div id="progress-bar-container">
       <div id="progress-bar"></div>
     </div>
+
     <div id="terminal"></div>
     <div id="result"></div>
   </div>
 
   <script src="script.js"></script>
+  <script>
+    document.getElementById("hack-start-button").addEventListener("click", () => {
+      if (window.startHack) startHack();
+    });
+  </script>
 </body>
 </html>
