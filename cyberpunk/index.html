@@ -35,10 +35,15 @@
     <div id="result"></div>
   </div>
 
+  <!-- Główna logika gry -->
   <script src="script.js"></script>
   <script>
-    document.getElementById("hack-start-button").addEventListener("click", () => {
-      if (window.startHack) startHack();
+    // Po załadowaniu skryptu – przypnij przycisk START w grze
+    window.addEventListener("DOMContentLoaded", () => {
+      const startHackBtn = document.getElementById("hack-start-button");
+      if (startHackBtn && typeof startHack === "function") {
+        startHackBtn.addEventListener("click", () => startHack());
+      }
     });
   </script>
 </body>
